@@ -15,7 +15,7 @@ public class MainFrame extends JFrame {
         setLocationRelativeTo(null);
 
         cardLayout = new CardLayout();
-        mainContainer = new JPanel();
+        mainContainer = new JPanel(cardLayout);
 
         mainContainer.add(new LoginPanel(this),"LOGIN");
         mainContainer.add(new MainMenuPanel(this),"MENU");
