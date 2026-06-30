@@ -20,8 +20,6 @@ public class DatabaseManager {
             );
             """;
 
-
-
         try (Connection conn = DriverManager.getConnection(URL);
              Statement stmt = conn.createStatement()) {
             stmt.execute(createUsersTable);
@@ -30,6 +28,7 @@ public class DatabaseManager {
             e.printStackTrace();
         }
     }
+
 
     public static boolean login(String username, String password) {
         String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
@@ -46,6 +45,10 @@ public class DatabaseManager {
     }
 
     public static boolean register(String username, String password) {
+        if (userExists(username)) {
+            return false;
+        }
+
         String sql = "INSERT INTO users(username, password) VALUES(?, ?)";
         try (Connection conn = DriverManager.getConnection(URL);
 
@@ -57,9 +60,23 @@ public class DatabaseManager {
 
             return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return false;
         }
+    }
+
+    private static boolean userExists(String username) {
+        String sql = "SELECT * FROM users WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+             pstmt.setString(1, username);
+             ResultSet rs = pstmt.executeQuery();
+             return rs.next();
+        } catch (SQLException e) {
+        System.out.println(e.getMessage());
+        }
+    return false;
     }
 
     public static void updateSoundSetting(String username, String settingColumn, boolean status) {

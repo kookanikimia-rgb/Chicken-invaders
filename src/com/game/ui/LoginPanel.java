@@ -35,6 +35,10 @@ public class LoginPanel extends JPanel {
         gbc.gridy = 3;
         add(loginbtn,gbc);
 
+        JButton registerbtn = new JButton("Create Account");
+        gbc.gridy = 4;
+        add(registerbtn, gbc);
+
         loginbtn.addActionListener(e -> {
             String name = userField.getText();
             String pass = new String(passField.getPassword());
@@ -45,13 +49,28 @@ public class LoginPanel extends JPanel {
                     frame.showPage("MENU");
                     JOptionPane.showMessageDialog(this, "Welcome," + name + "!");
                 } else {
-                    // اگر غلط بود:
+
                     JOptionPane.showMessageDialog(this, "Invalid username or password!");
                 }
 
             }
             else {
                 JOptionPane.showMessageDialog(this, "Please fill in all fields!");
+            }
+        });
+
+        registerbtn.addActionListener(e -> {
+            String name = userField.getText();
+            String pass = new String(passField.getPassword());
+
+            if (name.isEmpty() || pass.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill in all fields!");
+                return;
+            }
+            if (DatabaseManager.register(name, pass)) {
+                JOptionPane.showMessageDialog(this, "Account created successfully! You can now login.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Registration failed! Username might already exist.");
             }
         });
 
