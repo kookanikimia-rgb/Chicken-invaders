@@ -1,5 +1,8 @@
 package com.game.ui;
 
+import com.game.database.DatabaseManager;
+import com.game.entities.UserSession;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -37,7 +40,15 @@ public class LoginPanel extends JPanel {
             String pass = new String(passField.getPassword());
 
             if (!name.isEmpty() && !pass.isEmpty()){
-                frame.showPage("MENU");
+                if (DatabaseManager.login(name, pass)) {
+                    UserSession.setUser(name);
+                    frame.showPage("MENU");
+                    JOptionPane.showMessageDialog(this, "Welcome," + name + "!");
+                } else {
+                    // اگر غلط بود:
+                    JOptionPane.showMessageDialog(this, "Invalid username or password!");
+                }
+
             }
             else {
                 JOptionPane.showMessageDialog(this, "Please fill in all fields!");
