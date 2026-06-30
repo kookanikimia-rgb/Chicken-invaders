@@ -1,13 +1,19 @@
 package com.game.ui;
 
+import com.game.database.DatabaseManager;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class MainFrame extends JFrame {
+
     private JPanel mainContainer;
     private CardLayout cardLayout;
 
     public MainFrame(){
+        DatabaseManager.initializeDatabase();
+
+
         setTitle("chicken invaders");
         setSize(600,800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
