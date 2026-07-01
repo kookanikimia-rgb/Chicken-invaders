@@ -9,6 +9,7 @@ public class MainFrame extends JFrame {
 
     private JPanel mainContainer;
     private CardLayout cardLayout;
+    private SettingsPanel settingsPanel;
 
     public MainFrame(){
         DatabaseManager.initializeDatabase();
@@ -26,13 +27,17 @@ public class MainFrame extends JFrame {
         mainContainer.add(new LoginPanel(this),"LOGIN");
         mainContainer.add(new MainMenuPanel(this),"MENU");
         mainContainer.add(new GamePanel(this),"GAME");
-        mainContainer.add(new SettingsPanel(this),"SETTINGS");
+        settingsPanel = new SettingsPanel(this);
+        mainContainer.add(settingsPanel, "SETTINGS");
 
         add(mainContainer);
         setVisible(true);
     }
 
     public void showPage(String pageName){
+        if (settingsPanel != null) {
+            settingsPanel.loadSettingsFromDB();
+        }
         cardLayout.show(mainContainer,pageName);
     }
 }

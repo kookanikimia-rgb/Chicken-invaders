@@ -93,4 +93,25 @@ public class DatabaseManager {
             e.printStackTrace();
         }
     }
+
+    public static boolean getSoundSetting(String userName, String settingName) {
+        boolean value = true;
+
+        String sql = "SELECT " + settingName + " FROM users WHERE username = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, userName);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                value = rs.getInt(settingName) == 1;
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Error getting setting " + settingName + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+        return value;
+    }
 }
