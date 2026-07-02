@@ -10,6 +10,7 @@ public class MainFrame extends JFrame {
     private JPanel mainContainer;
     private CardLayout cardLayout;
     private SettingsPanel settingsPanel;
+    private GamePanel gamePanel;
 
     public MainFrame(){
         DatabaseManager.initializeDatabase();
@@ -26,7 +27,8 @@ public class MainFrame extends JFrame {
 
         mainContainer.add(new LoginPanel(this),"LOGIN");
         mainContainer.add(new MainMenuPanel(this),"MENU");
-        mainContainer.add(new GamePanel(this),"GAME");
+        gamePanel = new GamePanel(this);
+        mainContainer.add(gamePanel, "GAME");
         settingsPanel = new SettingsPanel(this);
         mainContainer.add(settingsPanel, "SETTINGS");
 
@@ -39,5 +41,9 @@ public class MainFrame extends JFrame {
             settingsPanel.loadSettingsFromDB();
         }
         cardLayout.show(mainContainer,pageName);
+
+        if (pageName.equals("GAME")) {
+            gamePanel.requestFocusInWindow();
+        }
     }
 }
