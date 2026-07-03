@@ -27,13 +27,13 @@ public class Plane {
     }
 
 
-    public void keepInBounds() {
+    public void keepInBounds(int screenWidth,int screenHeight) {
         if (x < 0) x = 0;
 
-        if (x > 600 - width) x = 600 - width;
+        if (x > screenWidth - width) x = screenWidth - width;
 
         if (y < 0) y = 0;
 
-        if (y > 800 - height) y = 800 - height;
+        if (y > screenHeight - height) y = screenHeight - height;
     }
 }

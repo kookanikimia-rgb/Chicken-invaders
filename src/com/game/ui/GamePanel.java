@@ -1,11 +1,13 @@
 package com.game.ui;
 
+import com.game.entities.Bullet;
 import com.game.entities.Plane;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 
 public class GamePanel extends JPanel implements KeyListener {
 
@@ -16,8 +18,15 @@ public class GamePanel extends JPanel implements KeyListener {
     private boolean leftPressed;
     private boolean upPressed;
     private boolean downPressed;
+    private boolean spacePressed;
+
+    private ArrayList<Bullet> bullets ;
+    private int shootCooldown ;
 
     public GamePanel(MainFrame frame){
+        bullets = new ArrayList<>();
+        shootCooldown = 0;
+
         setPreferredSize(new Dimension(600,800));
         setBackground(Color.BLACK);
         setFocusable(true);
@@ -46,7 +55,27 @@ public class GamePanel extends JPanel implements KeyListener {
         if (downPressed)
             player.moveDown();
 
-        player.keepInBounds();
+        player.keepInBounds(getWidth(),getHeight());
+
+        if(spacePressed && shootCooldown <=0){
+            int centerX = player.x +(player.width/2);
+            int bulletX = centerX-(5/2);
+            bullets.add(new Bullet(bulletX,player.y));
+            shootCooldown= 15;
+        }
+
+        if (shootCooldown > 0)
+            shootCooldown--;
+
+        for (int i = 0; i < bullets.size(); i++) {
+            Bullet b = bullets.get(i);
+            b.move();
+
+            if (b.y < 0) {
+                bullets.remove(i);
+                i--;
+            }
+        }
     }
 
     @Override
@@ -57,6 +86,9 @@ public class GamePanel extends JPanel implements KeyListener {
         g2d.setColor(Color.CYAN);
         g2d.fillRect(player.x,player.y,player.width,player.height);
 
+        for (Bullet b : bullets) {
+            b.draw(g);
+        }
     }
 
     @Override
@@ -74,6 +106,9 @@ public class GamePanel extends JPanel implements KeyListener {
 
         if (key==KeyEvent.VK_DOWN)
             downPressed = true;
+
+        if (key==KeyEvent.VK_SPACE)
+            spacePressed = true;
     }
 
     @Override
@@ -91,6 +126,9 @@ public class GamePanel extends JPanel implements KeyListener {
 
         if (key==KeyEvent.VK_DOWN)
             downPressed = false;
+
+        if (key==KeyEvent.VK_SPACE)
+            spacePressed = false;
     }
 
     @Override
