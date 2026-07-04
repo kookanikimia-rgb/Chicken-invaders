@@ -6,6 +6,8 @@ public class Plane {
     public int x,y;
     public int width = 50;
     public int height = 50;
+    public int hp = 3;
+    public int maxHp = 5;
     public int speed = 5;
 
     public Plane(){
@@ -16,16 +18,18 @@ public class Plane {
     public void moveLeft(){
         x -= speed;
     }
-
     public void moveRight(){
         x += speed;
     }
     public void moveUp() {
         y -= speed;
     }
-
     public void moveDown() {
         y += speed;
+    }
+
+    public void takeDamage(){
+        hp--;
     }
 
 

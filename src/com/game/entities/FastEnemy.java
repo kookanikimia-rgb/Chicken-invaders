@@ -4,12 +4,12 @@ import java.awt.*;
 
 public class FastEnemy extends Enemy{
 
-    public FastEnemy(int x,int y,int hp){
-        super(x,y,hp);
+    public FastEnemy(int hp){
+        super(hp);
     }
 
     @Override
-    public void update(int dir,int speed){
+    public void update(int dir,int speed,int gx,int gy){
         x += dir*speed;
     }
 

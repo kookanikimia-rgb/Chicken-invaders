@@ -44,6 +44,7 @@ public class MainFrame extends JFrame {
 
         if (pageName.equals("GAME")) {
             gamePanel.requestFocusInWindow();
+            gamePanel.startGame();
         }
     }
 }
