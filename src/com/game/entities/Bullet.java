@@ -24,4 +24,8 @@ public class Bullet {
         g.setColor(new Color(50,50,120));
         g.fillRect(x,y,width,height);
     }
+
+    public Rectangle getBounds() {
+        return new Rectangle(x, y, width, height);
+    }
 }

@@ -1,6 +1,8 @@
 package com.game.ui;
 
 import com.game.entities.Bullet;
+import com.game.entities.Enemy;
+import com.game.entities.EnemyGrid;
 import com.game.entities.Plane;
 
 import javax.swing.*;
@@ -22,10 +24,15 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private ArrayList<Bullet> bullets ;
     private int shootCooldown ;
+    private EnemyGrid enemyGrid;
+
 
     public GamePanel(MainFrame frame){
         bullets = new ArrayList<>();
         shootCooldown = 0;
+
+        enemyGrid = new EnemyGrid(1);
+
 
         setPreferredSize(new Dimension(600,800));
         setBackground(Color.BLACK);
@@ -42,7 +49,7 @@ public class GamePanel extends JPanel implements KeyListener {
         this.addKeyListener(this);
     }
 
-    private void update(){
+    private void update() {
         if (leftPressed)
             player.moveLeft();
 
@@ -55,13 +62,13 @@ public class GamePanel extends JPanel implements KeyListener {
         if (downPressed)
             player.moveDown();
 
-        player.keepInBounds(getWidth(),getHeight());
+        player.keepInBounds(getWidth(), getHeight());
 
-        if(spacePressed && shootCooldown <=0){
-            int centerX = player.x +(player.width/2);
-            int bulletX = centerX-(5/2);
-            bullets.add(new Bullet(bulletX,player.y));
-            shootCooldown= 15;
+        if (spacePressed && shootCooldown <= 0) {
+            int centerX = player.x + (player.width / 2);
+            int bulletX = centerX - (5 / 2);
+            bullets.add(new Bullet(bulletX, player.y));
+            shootCooldown = 15;
         }
 
         if (shootCooldown > 0)
@@ -74,8 +81,20 @@ public class GamePanel extends JPanel implements KeyListener {
             if (b.y < 0) {
                 bullets.remove(i);
                 i--;
+                continue;
+            }
+
+        for (Enemy e : enemyGrid.gridEnemies)
+            if (b.getBounds().intersects(e.getBounds())) {
+
+                e.takeDamage();
+                bullets.remove(i);
+                i--;
+                break;
             }
         }
+
+        enemyGrid.update(getWidth());
     }
 
     @Override
@@ -89,6 +108,7 @@ public class GamePanel extends JPanel implements KeyListener {
         for (Bullet b : bullets) {
             b.draw(g);
         }
+        enemyGrid.draw(g);
     }
 
     @Override
@@ -135,4 +155,5 @@ public class GamePanel extends JPanel implements KeyListener {
     public void keyTyped(KeyEvent e){
 
     }
+
 }

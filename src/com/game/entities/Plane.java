@@ -1,5 +1,7 @@
 package com.game.entities;
 
+import java.awt.*;
+
 public class Plane {
     public int x,y;
     public int width = 50;
@@ -35,5 +37,9 @@ public class Plane {
         if (y < 0) y = 0;
 
         if (y > screenHeight - height) y = screenHeight - height;
+    }
+
+    public Rectangle getBounds() {
+        return new Rectangle(x, y, width, height);
     }
 }
