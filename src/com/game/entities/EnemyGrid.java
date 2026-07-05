@@ -13,6 +13,7 @@ public class EnemyGrid {
     private int dropStep;
     public int[][] cellHits;
     private int currentLevel;
+    public LevelConfig config;
 
     public EnemyGrid(int level){
         this.currentLevel = level;
@@ -20,8 +21,11 @@ public class EnemyGrid {
         this.gridX = 0;
         this.gridY = 50;
         this.direction = 1;
-        this.gridSpeed = 1;
-        this.dropStep = 20;
+
+        config = LevelConfig.getLevel(level);
+        this.gridSpeed = (int)config.speed;
+        this.dropStep = config.dropStep;
+
         this.cellHits = new int[5][8];
         initGrid(level);
     }
@@ -48,25 +52,15 @@ public class EnemyGrid {
 
     private void initGrid(int level){
 
-
-        int initialCellHits = 2;
-        if (level >= 5 && level <= 7) {
-            initialCellHits = (level == 5) ? 3 : 4;
-        } else if (level == 3) {
-            initialCellHits = 3;
-        }
-
         for (int row = 0; row < 5; row++) {
             for (int col = 0; col < 8; col++) {
 
-                cellHits[row][col] = initialCellHits;
+                cellHits[row][col] = config.initialCellHits;
 
 
                 Enemy enemy = createEnemyForLevel(level, row, col);
-
-
-                enemy.x = gridX + col*60;
-                enemy.y = gridY + row*60;
+                enemy.x = gridX + col*50;
+                enemy.y = gridY + row*50;
                 enemy.row = row;
                 enemy.col = col;
 
@@ -75,55 +69,60 @@ public class EnemyGrid {
         }
     }
 
-    private Enemy createEnemyForLevel(int level,int row,int col){
+    private Enemy createEnemyForLevel(int level,int row,int col) {
+        String type = config.enemyType;
         Random rand = new Random();
-        int type = rand.nextInt(3); // یک عدد تصادفی برای تنوع بخشیدن
 
-        if (level == 1) {
-            return new NormalEnemy(2); // فقط Normal
+        if (type.equals("Normal")) {
 
-        } else if (level == 2) {
-            // ترکیبی از Normal و Fast
-            return (type == 0) ? new FastEnemy(1) : new NormalEnemy(2);
+            return new NormalEnemy(config.initialCellHits,config.eggInterval); // فقط Normal
 
-        } else if (level == 3) {
-            // ترکیبی از Normal و Zigzag
-            return (type == 0) ? new ZigzagEnemy(3) : new NormalEnemy(3);
+        } else if (type.equals("Normal+Fast")) {
 
-        } else if (level >= 5 && level <= 6) {
-            // ترکیبی از Shooter و Fast یا Zigzag
-            if (level == 5) return (type == 0) ? new ShooterEnemy(3) : new FastEnemy(2);
-            else return (type == 0) ? new ShooterEnemy(4) : new ZigzagEnemy(4);
+            return (rand.nextInt(2) == 0) ? new FastEnemy(config.initialCellHits,config.eggInterval) : new NormalEnemy(config.initialCellHits,config.eggInterval);
 
-        } else if (level == 7) {
-            // همه انواع
+        } else if (type.equals("Normal+Zigzag")) {
+
+            return (rand.nextInt(2) == 0) ? new ZigzagEnemy(config.initialCellHits,config.eggInterval) : new NormalEnemy(config.initialCellHits,config.eggInterval);
+
+        } else if (type.equals("Shooter+Fast")) {
+
+            return (rand.nextInt(2) == 0) ? new ShooterEnemy(config.initialCellHits,config.eggInterval) : new FastEnemy(config.initialCellHits,config.eggInterval);
+
+        }else if(type.equals("Zigzag+Shooter")){
+
+            return (rand.nextInt(2) == 0) ? new ZigzagEnemy(config.initialCellHits,config.eggInterval) : new FastEnemy(config.initialCellHits,config.eggInterval);
+
+        }else if (type.equals("All")) {
+
             int allTypes = rand.nextInt(4);
             switch (allTypes) {
-                case 0: return new NormalEnemy(4);
-                case 1: return new FastEnemy(4);
-                case 2: return new ZigzagEnemy(4);
-                default: return new ShooterEnemy(4);
+                case 0: return new NormalEnemy(config.initialCellHits,config.eggInterval);
+                case 1: return new FastEnemy(config.initialCellHits,config.eggInterval);
+                case 2: return new ZigzagEnemy(config.initialCellHits,config.eggInterval);
+                default: return new ShooterEnemy(config.initialCellHits,config.eggInterval);
             }
+
         }
-        return new NormalEnemy(2); // پیش‌فرض
+        return new NormalEnemy(config.initialCellHits,config.eggInterval);
     }
 
 
-    public void update(int screenWidth){
+    public void update(int screenWidth) {
         boolean hitEdge = false;
 
-        for(Enemy e : gridEnemies){
-            e.update(direction,gridSpeed,this.gridX,this.gridY);
+        for (Enemy e : gridEnemies) {
+            e.update(direction, gridSpeed, this.gridX, this.gridY,screenWidth);
             if (!e.isReplacement) {
                 if (e.x + e.width > screenWidth || e.x < 0)
                     hitEdge = true;
             }
         }
 
-        if(hitEdge){
+        if (hitEdge) {
             direction *= -1;
             gridY += dropStep;
-            for (Enemy e: gridEnemies)
+            for (Enemy e : gridEnemies)
                 if (!e.isReplacement)
                     e.y += dropStep;
         }

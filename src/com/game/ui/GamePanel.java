@@ -147,9 +147,11 @@ public class GamePanel extends JPanel implements KeyListener {
             gameOver();}
 
         for (Enemy e : enemyGrid.gridEnemies) {
+            if (e.row == 4 ) {
             Egg newEgg = e.dropEgg();
             if (newEgg != null) {
                 eggs.add(newEgg);
+            }
             }
         }
 
@@ -173,8 +175,11 @@ public class GamePanel extends JPanel implements KeyListener {
         if (enemyGrid.gridEnemies.isEmpty()) {
             if (currentLevel < 8) {
                 currentLevel++;
+                enemyGrid = new EnemyGrid(currentLevel);
                 addScore(200);
+            }else {
                 isWin = true;
+                gameOver();
             }
         }
     }

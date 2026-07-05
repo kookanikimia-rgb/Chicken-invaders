@@ -10,17 +10,18 @@ public abstract class Enemy {
     public int hp;
     public int row, col;
 
-    public int pointValue;
 
+    public int pointValue;
     public boolean isReplacement;
     public int eggInterval;
     private long lastEggDropTime;
 
 
-    public Enemy(int hp){
-        width = 40;
-        height = 40;
+    public Enemy(int hp,int levelEggInterval){
+        width = 30;
+        height = 30;
         this.hp = hp;
+        this.eggInterval = levelEggInterval;
         this.lastEggDropTime = System.currentTimeMillis();
 
     }
@@ -33,7 +34,7 @@ public abstract class Enemy {
     return (hp <= 0);
 }
 
-    public abstract void update(int direction, int gridSpeed ,int gx ,int gy);
+    public abstract void update(int direction, int gridSpeed ,int gx ,int gy,int screenWidth );
 
 
     public void draw(Graphics g){
