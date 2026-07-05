@@ -6,7 +6,10 @@ public class NormalEnemy extends Enemy{
 
     public NormalEnemy(int hp){
         super(hp);
+        eggInterval = 3000;
+        pointValue = 10;
     }
+
     @Override
     public void update(int dir,int speed,int gx,int gy){
         if(this.isReplacement) {

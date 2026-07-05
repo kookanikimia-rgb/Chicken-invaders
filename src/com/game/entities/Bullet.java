@@ -7,6 +7,7 @@ public class Bullet {
     public int width;
     public int height;
     public int speed ;
+    public int eggTimer = 0;
 
     public Bullet(int startX,int startY){
         this.x = startX;

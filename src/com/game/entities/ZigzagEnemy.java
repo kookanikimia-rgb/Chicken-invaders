@@ -8,6 +8,7 @@ public class ZigzagEnemy extends Enemy{
 
     public ZigzagEnemy(int hp){
         super(hp);
+        pointValue = 20;
     }
 
 

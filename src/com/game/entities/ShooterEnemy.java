@@ -5,6 +5,7 @@ import java.awt.*;
 public class ShooterEnemy extends Enemy{
     public ShooterEnemy(int hp){
         super(hp);
+        pointValue = 25;
     }
 
     @Override

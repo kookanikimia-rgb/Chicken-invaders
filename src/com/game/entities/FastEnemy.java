@@ -6,6 +6,7 @@ public class FastEnemy extends Enemy{
 
     public FastEnemy(int hp){
         super(hp);
+        pointValue = 15;
     }
 
     @Override

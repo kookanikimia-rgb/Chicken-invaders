@@ -11,6 +11,7 @@ public class SettingsPanel extends JPanel {
     private JCheckBox shotSound;
     private JCheckBox crashSound;
     private JCheckBox gameOverSound;
+
     public SettingsPanel(MainFrame frame){
 
         setLayout(new GridBagLayout());

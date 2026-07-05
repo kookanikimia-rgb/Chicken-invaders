@@ -21,7 +21,7 @@ public class EnemyGrid {
         this.gridY = 50;
         this.direction = 1;
         this.gridSpeed = 1;
-        this.dropStep = 10;
+        this.dropStep = 20;
         this.cellHits = new int[5][8];
         initGrid(level);
     }
