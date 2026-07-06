@@ -27,6 +27,7 @@ public class GamePanel extends JPanel implements KeyListener {
     private EnemyGrid enemyGrid;
 
     private ArrayList<Egg> eggs ;
+    private ArrayList<EnemyBullet> enemyBullets;
 
     private int score;
     private int currentLevel;
@@ -40,6 +41,7 @@ public class GamePanel extends JPanel implements KeyListener {
         this.shootCooldown = 0;
 
         this.eggs = new ArrayList<>();
+        enemyBullets = new ArrayList<>();
         this.enemyGrid = new EnemyGrid(1);
 
         this.player = new Plane();
@@ -153,6 +155,13 @@ public class GamePanel extends JPanel implements KeyListener {
                 eggs.add(newEgg);
             }
             }
+            if(e instanceof ShooterEnemy){
+
+                EnemyBullet b=((ShooterEnemy)e).shoot(player.x);
+
+                if(b!=null)
+                    enemyBullets.add(b);
+            }
         }
 
         // آپدیت حرکت تخم‌ها و برخورد با پلیر
@@ -172,6 +181,29 @@ public class GamePanel extends JPanel implements KeyListener {
                     gameOver();
             }
         }
+
+        for(int i=0;i<enemyBullets.size();i++){
+
+            EnemyBullet b=enemyBullets.get(i);
+
+            b.move();
+
+            if(b.getBounds().intersects(player.getBounds())){
+
+                player.takeDamage();
+
+                enemyBullets.remove(i--);
+
+                if(player.hp<=0)
+                    gameOver();
+
+                continue;
+            }
+
+            if(b.x<0||b.x>getWidth())
+                enemyBullets.remove(i--);
+        }
+
         if (enemyGrid.gridEnemies.isEmpty()) {
             if (currentLevel < 8) {
                 currentLevel++;
@@ -209,6 +241,10 @@ public class GamePanel extends JPanel implements KeyListener {
 
         for (Egg egg : eggs) {
             egg.draw(g);
+        }
+
+        for(EnemyBullet b:enemyBullets){
+            b.draw(g);
         }
 
         if (isGameOver) {

@@ -6,20 +6,29 @@ import java.util.Random;
 
 public class EnemyGrid {
 
-    public ArrayList<Enemy>  gridEnemies;
     private int gridX,gridY;
+
     private int direction;
+
     private int gridSpeed;
     private int dropStep;
+
     public int[][] cellHits;
+
     private int currentLevel;
     public LevelConfig config;
 
+    public ArrayList<Enemy>  gridEnemies;
+    protected int replacementDirection;
+
     public EnemyGrid(int level){
         this.currentLevel = level;
+
         this.gridEnemies = new ArrayList<>();
+
         this.gridX = 0;
         this.gridY = 50;
+
         this.direction = 1;
 
         config = LevelConfig.getLevel(level);
@@ -27,7 +36,31 @@ public class EnemyGrid {
         this.dropStep = config.dropStep;
 
         this.cellHits = new int[5][8];
+
+
         initGrid(level);
+    }
+
+
+    private void initGrid(int level){
+
+        for (int row = 0; row < 5; row++) {
+            for (int col = 0; col < 8; col++) {
+
+                cellHits[row][col] = config.initialCellHits;
+
+
+                Enemy enemy = createEnemyForLevel(level, row, col);
+
+                enemy.row = row;
+                enemy.col = col;
+
+                enemy.x = gridX + col * 40;
+                enemy.y = gridY + row * 40;
+
+                gridEnemies.add(enemy);
+            }
+        }
     }
 
     public void spawnReplacementEnemy(int row, int col) {
@@ -41,32 +74,18 @@ public class EnemyGrid {
         // تعیین نقطه شروع: تصادفی از گوشه بالا-چپ یا بالا-راست
         Random rand = new Random();
         if (rand.nextBoolean()) {
-            replacement.x = 0; // گوشه چپ
+            replacement.x = 0;
+            // گوشه چپ
         } else {
-            replacement.x = 600; // گوشه راست (عرض صفحه)
+            replacement.x = 600;
+            // گوشه راست (عرض صفحه)
         }
         replacement.y = 0; // از بالای صفحه شروع می‌کند
 
+        replacement.targetX=gridX+col*40;
+        replacement.targetY=gridY+row*40;
+
         gridEnemies.add(replacement);
-    }
-
-    private void initGrid(int level){
-
-        for (int row = 0; row < 5; row++) {
-            for (int col = 0; col < 8; col++) {
-
-                cellHits[row][col] = config.initialCellHits;
-
-
-                Enemy enemy = createEnemyForLevel(level, row, col);
-                enemy.x = gridX + col*50;
-                enemy.y = gridY + row*50;
-                enemy.row = row;
-                enemy.col = col;
-
-                gridEnemies.add(enemy);
-            }
-        }
     }
 
     private Enemy createEnemyForLevel(int level,int row,int col) {
@@ -91,7 +110,7 @@ public class EnemyGrid {
 
         }else if(type.equals("Zigzag+Shooter")){
 
-            return (rand.nextInt(2) == 0) ? new ZigzagEnemy(config.initialCellHits,config.eggInterval) : new FastEnemy(config.initialCellHits,config.eggInterval);
+            return (rand.nextInt(2) == 0) ? new ZigzagEnemy(config.initialCellHits,config.eggInterval) : new ShooterEnemy(config.initialCellHits,config.eggInterval);
 
         }else if (type.equals("All")) {
 
@@ -107,26 +126,55 @@ public class EnemyGrid {
         return new NormalEnemy(config.initialCellHits,config.eggInterval);
     }
 
+    public void update(int screenWidth){
 
-    public void update(int screenWidth) {
         boolean hitEdge = false;
 
-        for (Enemy e : gridEnemies) {
-            e.update(direction, gridSpeed, this.gridX, this.gridY,screenWidth);
-            if (!e.isReplacement) {
-                if (e.x + e.width > screenWidth || e.x < 0)
-                    hitEdge = true;
+        // بررسی برخورد
+        for(Enemy e : gridEnemies){
+
+            if(e.isReplacement)
+                continue;
+
+            int nextX = e.x + direction * gridSpeed;
+
+            if(nextX < 0 || nextX + e.width > screenWidth){
+                hitEdge = true;
+                break;
             }
         }
 
-        if (hitEdge) {
+        // برخورد
+        if(hitEdge){
+
             direction *= -1;
             gridY += dropStep;
-            for (Enemy e : gridEnemies)
-                if (!e.isReplacement)
+            for(Enemy e : gridEnemies){
+
+                if(!e.isReplacement){
                     e.y += dropStep;
+                }
+            }
         }
+        // حرکت
+        for(Enemy e : gridEnemies){
+            if(e.isReplacement){
+
+                e.targetX=gridX+e.col*40;
+                e.targetY=gridY+e.row*40;
+
+                e.update(direction,gridSpeed);
+
+            }else{
+
+                e.x+=direction* gridSpeed;
+                e.update(direction,gridSpeed);
+
+            }
+        }
+        gridX+=direction*gridSpeed;
     }
+
 
     public void draw(Graphics g) {
         for (Enemy e : gridEnemies) {

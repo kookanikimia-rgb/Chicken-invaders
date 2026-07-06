@@ -1,33 +1,52 @@
 package com.game.entities;
 
 import java.awt.*;
+import java.util.Random;
 
-public class ShooterEnemy extends Enemy{
-    public ShooterEnemy(int hp,int levelEggInterval){
-        super(hp,levelEggInterval);
+public class ShooterEnemy extends Enemy {
+
+    private Random random;
+    private long lastShotTime;
+    private static final int SHOOT_INTERVAL = 3000; // هر ۲.۵ ثانیه حداکثر یک شلیک
+
+    public ShooterEnemy(int hp, int levelEggInterval) {
+        super(hp, levelEggInterval);
+
         pointValue = 25;
+
+        random = new Random();
+        lastShotTime = System.currentTimeMillis();
     }
 
     @Override
-    public void update(int dir,int speed,int gx,int gy,int screenWidth ){
-        if(this.isReplacement) {
-            int targetX = gx + this.col * 60;
-            int targetY = gy + this.row * 60;
+    public void update(int direction, int gridSpeed) {
 
-            if (this.x < targetX) this.x += 2;
-            if (this.x > targetX) this.x -= 2;
-            if (this.y < targetY) this.y += 2;
-            if (this.y > targetY) this.y -= 2;
-
-            if (Math.abs(this.x - targetX) < 5 && Math.abs(this.y - targetY) < 5) {
-                this.x = targetX;
-                this.y = targetY;
-                this.isReplacement = false;
-            }
-        }else {
-            x += dir * speed;
+        if (isReplacement) {
+            moveToCell();
         }
     }
+    public EnemyBullet shoot(int playerX) {
+
+        long currentTime = System.currentTimeMillis();
+
+        if (currentTime - lastShotTime >= SHOOT_INTERVAL) {
+
+            // احتمال ۳۰ درصد برای شلیک
+            if (random.nextInt(100) < 30) {
+
+                lastShotTime = currentTime;
+
+                return new EnemyBullet(
+                        x + width / 2,
+                        y + height / 2,
+                        playerX
+                );
+            }
+        }
+
+        return null;
+    }
+
     @Override
     protected Color getColor() {
         return Color.MAGENTA;
