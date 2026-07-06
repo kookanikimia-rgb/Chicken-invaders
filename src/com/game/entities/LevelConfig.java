@@ -23,7 +23,7 @@ public class LevelConfig {
             case 3: return new LevelConfig(2.0f,25,1500,3,"Normal+Zigzag");
             case 5: return new LevelConfig(2.5f,25,1000,3,"Shooter+Fast");
             case 6: return new LevelConfig(3.0f,30,800,4,"Zigzag+Shooter");
-            case 7: return new LevelConfig(3.5f, 30, 700, 4, "All");
+            case 7: return new LevelConfig(3.2f, 30, 700, 4, "All");
             default: return new LevelConfig(1.0f, 20, 3000, 2, "Normal");
         }
     }

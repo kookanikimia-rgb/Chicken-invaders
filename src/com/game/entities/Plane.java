@@ -6,7 +6,7 @@ public class Plane {
     public int x,y;
     public int width = 50;
     public int height = 50;
-    public int hp = 7;
+    public int hp = 3;
     public int maxHp = 5;
     public int speed = 5;
 

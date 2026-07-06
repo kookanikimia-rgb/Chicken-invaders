@@ -3,24 +3,42 @@ package com.game.entities;
 import java.awt.*;
 
 public class Egg {
-    public int x, y, width = 8, height = 12;
-    public int speed = 4;
+    public float x, y;
+    public int width, height;
+    public int speed;
+    public float vx, vy;
 
     public Egg(int x, int y) {
         this.x = x;
         this.y = y;
+        this.vx = 0;
+        this.vy = 4;
+        this.width = 8;
+        this.height = 12;
+        this.speed = 4;
+    }
+    public Egg(float x, float y, float vx, float vy) {
+        this.x = x;
+        this.y = y;
+        this.width = 8;
+        this.height = 12;
+        this.speed = 4;
+        this.vx = vx;
+        this.vy = vy;
     }
 
+
     public void move() {
-        y += speed; // تخم به پایین می‌رود
+        x += vx;
+        y += vy;
     }
 
     public void draw(Graphics g) {
         g.setColor(Color.WHITE);
-        g.fillOval(x, y, width, height); // تخم‌ها بیضی شکل باشند
+        g.fillOval((int)x,(int)y, width, height);
     }
 
     public Rectangle getBounds() {
-        return new Rectangle(x, y, width, height);
+        return new Rectangle((int)x,(int)y, width, height);
     }
 }

@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GamePanel extends JPanel implements KeyListener {
 
@@ -25,6 +26,7 @@ public class GamePanel extends JPanel implements KeyListener {
     private ArrayList<Bullet> bullets ;
     private int shootCooldown ;
     private EnemyGrid enemyGrid;
+    private Boss boss;
 
     private ArrayList<Egg> eggs ;
     private ArrayList<EnemyBullet> enemyBullets;
@@ -107,15 +109,23 @@ public class GamePanel extends JPanel implements KeyListener {
                 i--;
                 continue;
             }
-
-        for (Enemy e : enemyGrid.gridEnemies)
-            if (b.getBounds().intersects(e.getBounds())) {
-                e.takeDamage();
-                bullets.remove(i);
-                i--;
-                break;
+            if (enemyGrid != null && (currentLevel != 4 && currentLevel != 8)) {
+                for (Enemy e : enemyGrid.gridEnemies)
+                    if (b.getBounds().intersects(e.getBounds())) {
+                        e.takeDamage();
+                        bullets.remove(i);
+                        i--;
+                        break;
+                    }
+            }else if (boss != null) {
+                // اگر غول روی صفحه است، چک کن تیر به او خورده یا نه
+                if (b.getBounds().intersects(boss.getBounds())) {
+                    boss.takeDamage();
+                    bullets.remove(i--);
+                }
             }
         }
+
         //برخورد پلیر با دشمن
         for(Enemy e : enemyGrid.gridEnemies)
             if(player.getBounds().intersects(e.getBounds())){
@@ -142,25 +152,46 @@ public class GamePanel extends JPanel implements KeyListener {
                 i--;
             }
         }
+        if (currentLevel == 4 || currentLevel == 8) {
+            // اگر لول ۴ یا ۸ است، غول را مدیریت کن
+            if (boss == null) boss = new Boss(currentLevel);
+            boss.update(getWidth());
 
-        enemyGrid.update(getWidth());
+            // تخم‌های غول را به لیست تخم‌های بازی اضافه کن
+            List<Egg> bossEggs = boss.attack();
+            eggs.addAll(bossEggs);
 
-        if (enemyGrid.isBottomReached()) {
-            gameOver();}
-
-        for (Enemy e : enemyGrid.gridEnemies) {
-            if (e.row == 4 ) {
-            Egg newEgg = e.dropEgg();
-            if (newEgg != null) {
-                eggs.add(newEgg);
+            if (boss.isDead()) {
+                addScore((currentLevel == 4) ? 500 : 1000);
+                if (currentLevel == 8) {
+                    isWin = true;
+                } else {
+                    currentLevel++; // رفتن به لول ۵
+                    boss = null;
+                    enemyGrid = new EnemyGrid(currentLevel); // ساخت شبکه لول ۵
+                }
             }
+        }else {
+            enemyGrid.update(getWidth());
+
+            if (enemyGrid.isBottomReached()) {
+                gameOver();
             }
-            if(e instanceof ShooterEnemy){
 
-                EnemyBullet b=((ShooterEnemy)e).shoot(player.x);
+            for (Enemy e : enemyGrid.gridEnemies) {
+                if (e.row == 4) {
+                    Egg newEgg = e.dropEgg();
+                    if (newEgg != null) {
+                        eggs.add(newEgg);
+                    }
+                }
+                if (e instanceof ShooterEnemy) {
 
-                if(b!=null)
-                    enemyBullets.add(b);
+                    EnemyBullet b = ((ShooterEnemy) e).shoot(player.x);
+
+                    if (b != null)
+                        enemyBullets.add(b);
+                }
             }
         }
 
@@ -214,6 +245,24 @@ public class GamePanel extends JPanel implements KeyListener {
                 gameOver();
             }
         }
+        if (boss.isDead()) {
+
+            if (currentLevel == 8) {
+
+                isWin = true;
+                isGameOver = true;
+
+                eggs.clear();
+                enemyBullets.clear();
+                bullets.clear();
+
+                gameTimer.stop();
+                return;
+            }
+            currentLevel++;
+            boss = null;
+            enemyGrid = new EnemyGrid(currentLevel);
+        }
     }
 
     @Override
@@ -237,7 +286,10 @@ public class GamePanel extends JPanel implements KeyListener {
         for (Bullet b : bullets) {
             b.draw(g);
         }
-        enemyGrid.draw(g);
+        if (currentLevel == 4 || currentLevel == 8) {
+            if (boss != null) boss.draw(g);}
+        else{
+        enemyGrid.draw(g);}
 
         for (Egg egg : eggs) {
             egg.draw(g);
@@ -341,10 +393,16 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private void resetGame() {
         player = new Plane();
-        enemyGrid = new EnemyGrid(1);
+        currentLevel = 1;
+        score = 0;
+        bulletCount = 1;
+        enemyGrid = new EnemyGrid(currentLevel);
+        bulletCount = 1;
         bullets.clear();
+        enemyBullets.clear();
         shootCooldown = 0;
         isGameOver = false;
+        isWin = false;
     }
 
     private void gameOver() {

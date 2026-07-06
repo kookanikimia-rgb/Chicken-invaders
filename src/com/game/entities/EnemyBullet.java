@@ -16,9 +16,9 @@ public class EnemyBullet {
         this.y = y;
 
         if(playerX > x)
-            dx = 6;
-        else
             dx = -6;
+        else
+            dx = 6;
     }
 
     public void move(){
