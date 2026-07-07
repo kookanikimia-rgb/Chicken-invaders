@@ -245,7 +245,7 @@ public class GamePanel extends JPanel implements KeyListener {
                 gameOver();
             }
         }
-        if (boss.isDead()) {
+        if ( boss!=null && boss.isDead()) {
 
             if (currentLevel == 8) {
 
