@@ -1,5 +1,6 @@
 package com.game.ui;
 
+import com.game.database.DatabaseManager;
 import com.game.entities.*;
 
 import javax.swing.*;
@@ -25,7 +26,6 @@ public class GamePanel extends JPanel implements KeyListener {
     private boolean upPressed;
     private boolean downPressed;
     private boolean spacePressed;
-    private boolean ESCPressed;
 
     private ArrayList<Bullet> bullets ;
     private int shootCooldown ;
@@ -101,13 +101,13 @@ public class GamePanel extends JPanel implements KeyListener {
         //شلیک
         if (spacePressed && shootCooldown <= 0) {
 
-            for(int i = 0; i < bulletCount; i++){
+            for (int i = 0; i < bulletCount; i++) {
 
                 int offset = (i - bulletCount / 2) * 10;
 
-                bullets.add(new Bullet(player.x + player.width/2 + offset, player.y));
+                bullets.add(new Bullet(player.x + player.width / 2 + offset, player.y));
             }
-            if(System.currentTimeMillis() < rapidFireEndTime)
+            if (System.currentTimeMillis() < rapidFireEndTime)
                 shootCooldown = 5;
             else
                 shootCooldown = 15;
@@ -118,7 +118,7 @@ public class GamePanel extends JPanel implements KeyListener {
         //  آپدیت تیر ها و برخورد با دشمنان
         for (int i = 0; i < bullets.size(); i++) {
             Bullet b = bullets.get(i);
-                b.move();
+            b.move();
 
             if (b.y < 0) {
                 bullets.remove(i);
@@ -133,7 +133,7 @@ public class GamePanel extends JPanel implements KeyListener {
                         i--;
                         break;
                     }
-            }else if (boss != null) {
+            } else if (boss != null) {
                 // اگر غول روی صفحه است، چک کن تیر به او خورده یا نه
                 if (b.getBounds().intersects(boss.getBounds())) {
                     boss.takeDamage();
@@ -143,12 +143,12 @@ public class GamePanel extends JPanel implements KeyListener {
         }
 
         //برخورد پلیر با دشمن
-        for(Enemy e : enemyGrid.gridEnemies)
-            if(player.getBounds().intersects(e.getBounds())){
-                if(System.currentTimeMillis() > shieldEndTime)
+        for (Enemy e : enemyGrid.gridEnemies)
+            if (player.getBounds().intersects(e.getBounds())) {
+                if (System.currentTimeMillis() > shieldEndTime)
                     player.takeDamage();
                 e.hp = 0;
-                if(player.hp <=0 )
+                if (player.hp <= 0)
                     gameOver();
             }
 
@@ -159,10 +159,10 @@ public class GamePanel extends JPanel implements KeyListener {
 
                 Random rand = new Random();
 
-                if(rand.nextInt(100) < 20){
+                if (rand.nextInt(100) < 20) {
                     int type = rand.nextInt(5);
 
-                    powerUps.add(new PowerUp(e.x,e.y,type));
+                    powerUps.add(new PowerUp(e.x, e.y, type));
                 }
                 // ۱. کم کردن از شمارنده خانه
                 enemyGrid.cellHits[e.row][e.col]--;
@@ -196,9 +196,9 @@ public class GamePanel extends JPanel implements KeyListener {
                     enemyGrid = new EnemyGrid(currentLevel); // ساخت شبکه لول ۵
                 }
             }
-        }else {
+        } else {
 
-            if(System.currentTimeMillis() > freezeEndTime)
+            if (System.currentTimeMillis() > freezeEndTime)
                 enemyGrid.update(getWidth());
 
             if (enemyGrid.isBottomReached()) {
@@ -214,10 +214,10 @@ public class GamePanel extends JPanel implements KeyListener {
                 }
                 if (e instanceof ShooterEnemy) {
 
-                    if(System.currentTimeMillis() > freezeEndTime){
-                        EnemyBullet b=((ShooterEnemy)e).shoot(player.x);
+                    if (System.currentTimeMillis() > freezeEndTime) {
+                        EnemyBullet b = ((ShooterEnemy) e).shoot(player.x);
 
-                        if(b!=null)
+                        if (b != null)
                             enemyBullets.add(b);
                     }
                 }
@@ -271,7 +271,7 @@ public class GamePanel extends JPanel implements KeyListener {
         // آپدیت حرکت تخم‌ها و برخورد با پلیر
         for (int i = 0; i < eggs.size(); i++) {
             Egg egg = eggs.get(i);
-            if(System.currentTimeMillis() > freezeEndTime)
+            if (System.currentTimeMillis() > freezeEndTime)
                 egg.move();
 
             if (egg.y > getHeight()) {
@@ -281,36 +281,36 @@ public class GamePanel extends JPanel implements KeyListener {
 
             if (egg.getBounds().intersects(player.getBounds())) {
 
-                if(System.currentTimeMillis() > shieldEndTime)
+                if (System.currentTimeMillis() > shieldEndTime)
                     player.takeDamage();
 
                 eggs.remove(i--);
-                if(player.hp <=0 )
+                if (player.hp <= 0)
                     gameOver();
             }
         }
 
-        for(int i=0;i<enemyBullets.size();i++){
+        for (int i = 0; i < enemyBullets.size(); i++) {
 
-            EnemyBullet b=enemyBullets.get(i);
+            EnemyBullet b = enemyBullets.get(i);
 
-            if(System.currentTimeMillis() > freezeEndTime)
+            if (System.currentTimeMillis() > freezeEndTime)
                 b.move();
 
-            if(b.getBounds().intersects(player.getBounds())){
+            if (b.getBounds().intersects(player.getBounds())) {
 
-                if(System.currentTimeMillis() > shieldEndTime)
+                if (System.currentTimeMillis() > shieldEndTime)
                     player.takeDamage();
 
                 enemyBullets.remove(i--);
 
-                if(player.hp<=0)
+                if (player.hp <= 0)
                     gameOver();
 
                 continue;
             }
 
-            if(b.x<0||b.x>getWidth())
+            if (b.x < 0 || b.x > getWidth())
                 enemyBullets.remove(i--);
         }
 
@@ -319,28 +319,37 @@ public class GamePanel extends JPanel implements KeyListener {
                 currentLevel++;
                 enemyGrid = new EnemyGrid(currentLevel);
                 addScore(200);
-            }else {
-                isWin = true;
-                gameOver();
             }
         }
-        if ( boss!=null && boss.isDead()) {
+        if (boss != null && boss.isDead()) {
 
             if (currentLevel == 8) {
+                isWin = true;
 
-                if (boss.isDead())
-                    isWin = true;
+                DatabaseManager.saveGame(
+                        UserSession.getUserName(),
+                        score,
+                        currentLevel,
+                        DatabaseManager.getSoundSetting(UserSession.getUserName(), "bg_music"),
+                        DatabaseManager.getSoundSetting(UserSession.getUserName(), "shot_sound"),
+                        DatabaseManager.getSoundSetting(UserSession.getUserName(), "crash_sound"),
+                        DatabaseManager.getSoundSetting(UserSession.getUserName(), "game_over_sound")
+                );
 
-                eggs.clear();
-                enemyBullets.clear();
-                bullets.clear();
+                DatabaseManager.updateUserStats(
+                        UserSession.getUserName(),
+                        score,
+                        currentLevel
+                );
 
-                gameTimer.stop();
-                return;
-            }
-            currentLevel++;
-            boss = null;
-            enemyGrid = new EnemyGrid(currentLevel);
+            eggs.clear();
+            enemyBullets.clear();
+            gameTimer.stop();
+            return;
+        }
+        currentLevel++;
+        boss = null;
+        enemyGrid = new EnemyGrid(currentLevel);
         }
     }
 
@@ -417,10 +426,20 @@ public class GamePanel extends JPanel implements KeyListener {
             FontMetrics fm = g2d.getFontMetrics();
             g2d.drawString(msg, (getWidth() - fm.stringWidth(msg)) / 2, getHeight() / 2);
 
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(new Font("Arial", Font.BOLD, 28));
+            String scoreMsg = "Score: " + score;
+            FontMetrics scoreFm = g2d.getFontMetrics();
+            g2d.drawString(
+                    scoreMsg,
+                    (getWidth() - scoreFm.stringWidth(scoreMsg)) / 2,
+                    (getHeight() / 2) + 40
+            );
+
             g2d.setColor(new Color(100,30,68));
             g2d.setFont(new Font("Arial", Font.PLAIN, 20));
             String subMsg = "Press ESC to return to Menu";
-            g2d.drawString(subMsg, (getWidth() - g2d.getFontMetrics().stringWidth(subMsg)) / 2, (getHeight() / 2) + 60);
+            g2d.drawString(subMsg, (getWidth() - g2d.getFontMetrics().stringWidth(subMsg)) / 2, (getHeight() / 2) + 85);
         }
         if (isWin && !isGameOver) {
             g2d.setColor(new Color(0,0,0,150));
@@ -429,12 +448,26 @@ public class GamePanel extends JPanel implements KeyListener {
             g2d.setFont(new Font("Arial", Font.BOLD, 60));
             String msg = "YOU WIN!";
             FontMetrics fm = g2d.getFontMetrics();
-            g2d.drawString(msg, (getWidth() - fm.stringWidth(msg)) / 2, getHeight() / 2);
+            g2d.drawString(msg,
+                    (getWidth() - fm.stringWidth(msg)) / 2,
+                    getHeight() / 2);
+
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(new Font("Arial", Font.BOLD, 28));
+            String scoreMsg = "Score: " + score;
+            FontMetrics scoreFm = g2d.getFontMetrics();
+            g2d.drawString(
+                    scoreMsg,
+                    (getWidth() - scoreFm.stringWidth(scoreMsg)) / 2,
+                    (getHeight() / 2) + 40
+            );
 
             g2d.setColor(new Color(100,30,69));
             g2d.setFont(new Font("Arial", Font.PLAIN, 20));
             String subMsg = "Press ESC to return to Menu";
-            g2d.drawString(subMsg, (getWidth() - g2d.getFontMetrics().stringWidth(subMsg)) / 2, (getHeight() / 2) + 60);
+            g2d.drawString(subMsg,
+                    (getWidth() - g2d.getFontMetrics().stringWidth(subMsg)) / 2,
+                    (getHeight() / 2) + 85);
         }
 
 }
@@ -512,10 +545,16 @@ public class GamePanel extends JPanel implements KeyListener {
         score = 0;
         bulletCount = 1;
         enemyGrid = new EnemyGrid(currentLevel);
+        boss = null;
         bulletCount = 1;
         bullets.clear();
         enemyBullets.clear();
+        powerUps.clear();
+        eggs.clear();
         shootCooldown = 0;
+        rapidFireEndTime = 0;
+        shieldEndTime = 0;
+        freezeEndTime = 0;
         isGameOver = false;
         isWin = false;
     }
@@ -523,6 +562,22 @@ public class GamePanel extends JPanel implements KeyListener {
     private void gameOver() {
         isGameOver = true;
         gameTimer.stop();
+
+        DatabaseManager.saveGame(
+                UserSession.getUserName(),
+                score,
+                currentLevel,
+                DatabaseManager.getSoundSetting(UserSession.getUserName(),"bg_music"),
+                DatabaseManager.getSoundSetting(UserSession.getUserName(),"shot_sound"),
+                DatabaseManager.getSoundSetting(UserSession.getUserName(),"crash_sound"),
+                DatabaseManager.getSoundSetting(UserSession.getUserName(),"game_over_sound")
+        );
+
+        DatabaseManager.updateUserStats(
+                UserSession.getUserName(),
+                score,
+                currentLevel
+        );
     }
 
     public void addScore(int points) {

@@ -27,6 +27,7 @@ public class MainFrame extends JFrame {
 
         mainContainer.add(new LoginPanel(this),"LOGIN");
         mainContainer.add(new MainMenuPanel(this),"MENU");
+        mainContainer.add(new HighScoresPanel(this),"HIGH_SCORES");
         gamePanel = new GamePanel(this);
         mainContainer.add(gamePanel, "GAME");
         settingsPanel = new SettingsPanel(this);
@@ -39,6 +40,16 @@ public class MainFrame extends JFrame {
     public void showPage(String pageName){
         if (settingsPanel != null) {
             settingsPanel.loadSettingsFromDB();
+        }
+
+        if(pageName.equals("HIGH_SCORES")){
+
+            mainContainer.remove(2);
+
+            mainContainer.add(new HighScoresPanel(this),"HIGH_SCORES");
+
+            revalidate();
+            repaint();
         }
         cardLayout.show(mainContainer,pageName);
 

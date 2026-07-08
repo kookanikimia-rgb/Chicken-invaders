@@ -43,7 +43,7 @@ public class MainMenuPanel extends JPanel {
                     case "New Game" -> frame.showPage("GAME");
                     case "Settings" -> frame.showPage("SETTINGS");
                     case "Exit" -> System.exit(0);
-                    default -> JOptionPane.showMessageDialog(this, "بزودی پیاده‌سازی می‌شود: " + text);
+                    case "High Scores" -> frame.showPage("HIGH_SCORES");
                 }
             });
 

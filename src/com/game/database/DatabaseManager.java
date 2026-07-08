@@ -20,9 +20,24 @@ public class DatabaseManager {
             );
             """;
 
+        String createGameHistoryTable = """
+            CREATE TABLE IF NOT EXISTS game_history(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL,
+                score INTEGER NOT NULL,
+                level INTEGER NOT NULL,
+                played_at TEXT NOT NULL,
+                bg_music INTEGER NOT NULL,
+                shot_sound INTEGER NOT NULL,
+                crash_sound INTEGER NOT NULL,
+                game_over_sound INTEGER NOT NULL
+            );
+            """;
+
         try (Connection conn = DriverManager.getConnection(URL);
              Statement stmt = conn.createStatement()) {
             stmt.execute(createUsersTable);
+            stmt.execute(createGameHistoryTable);
             System.out.println("Database initialized successfully!");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -113,5 +128,93 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return value;
+    }
+
+    public static void updateUserStats(String username, int score, int level) {
+
+        String sql = """
+        UPDATE users
+        SET high_score = MAX(high_score, ?),
+            current_level = ?
+        WHERE username = ?
+        """;
+
+        try(Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement pstmt = conn.prepareStatement(sql)){
+
+            pstmt.setInt(1, score);
+            pstmt.setInt(2, level);
+            pstmt.setString(3, username);
+
+            pstmt.executeUpdate();
+
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void saveGame(String username,
+                                int score,
+                                int level,
+                                boolean bgMusic,
+                                boolean shotSound,
+                                boolean crashSound,
+                                boolean gameOverSound) {
+
+        String sql = """
+        INSERT INTO game_history
+            (username,score,level,played_at,
+             bg_music,shot_sound,crash_sound,game_over_sound)
+        VALUES(?,?,?,?,?,?,?,?)
+        """;
+
+        try(Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement pstmt = conn.prepareStatement(sql)){
+
+            pstmt.setString(1,username);
+            pstmt.setInt(2,score);
+            pstmt.setInt(3,level);
+
+            pstmt.setString(4,
+                    java.time.LocalDateTime.now().toString());
+
+            pstmt.setInt(5,bgMusic ? 1 : 0);
+            pstmt.setInt(6,shotSound ? 1 : 0);
+            pstmt.setInt(7,crashSound ? 1 : 0);
+            pstmt.setInt(8,gameOverSound ? 1 : 0);
+
+            pstmt.executeUpdate();
+
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    public static ResultSet getHighScores() {
+
+        String sql = """
+        SELECT u.username,
+               MAX(g.score) AS bestScore,
+               u.current_level
+        FROM game_history g
+        JOIN users u ON g.username = u.username
+        GROUP BY u.username
+        ORDER BY bestScore DESC
+        """;
+
+        try{
+
+            Connection conn = DriverManager.getConnection(URL);
+
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+
+            return pstmt.executeQuery();
+
+        }catch(SQLException e){
+
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

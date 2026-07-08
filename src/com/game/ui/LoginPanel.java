@@ -16,7 +16,7 @@ public class LoginPanel extends JPanel {
         gbc.gridx = 0;
 
         JLabel title = new JLabel("WELCOME!");
-        title.setForeground(Color.CYAN);
+        title.setForeground(Color.white);
         title.setFont(new Font("Arial", Font.BOLD, 35));
         gbc.gridy = 0;
         add(title, gbc);
