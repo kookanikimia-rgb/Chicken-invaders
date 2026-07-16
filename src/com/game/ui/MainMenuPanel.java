@@ -1,10 +1,23 @@
 package com.game.ui;
 
+import com.game.audio.SoundManager;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class MainMenuPanel extends JPanel {
+
+    private Image backgroundImage;
+
     public MainMenuPanel(MainFrame frame) {
+
+        try {
+            backgroundImage = new ImageIcon(getClass().getResource("/Assets/images/main-menu-background.jpg")).getImage();
+        } catch (Exception e) {
+            System.out.println("MainMenu background image not found, using default color.");
+        }
+
+        SoundManager.startBackgroundMusic();
 
         setLayout(new GridBagLayout());
         setBackground(new Color(20, 40, 60));
@@ -50,6 +63,18 @@ public class MainMenuPanel extends JPanel {
             gbc.gridy = i + 1;
             gbc.insets = new Insets(10, 0, 10, 0);
             add(btn, gbc);
+        }
+
+
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        if (backgroundImage != null) {
+            // عکس را به اندازه کل پنل می‌کشد
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
 }

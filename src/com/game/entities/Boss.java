@@ -1,5 +1,6 @@
 package com.game.entities;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,8 @@ public class Boss {
     private float speedX;
     private int direction;
     private long lastAttackTime;
+
+    public Image image;
 
 
     private float angleY;
@@ -39,12 +42,27 @@ public class Boss {
             this.hp = 50;
             this.speedX = 1.5f;
             this.pointValue = 500;
+
+            try {
+                this.image = new ImageIcon(getClass().getResource("/Assets/images/chicken/boss1.png")).getImage();
+            } catch (Exception e) {
+                System.out.println("Boss1Enemy image not found!");
+            }
+
         } else {
             this.maxHp = 100;
             this.hp = 100;
             this.speedX = 2.0f;
             this.pointValue = 1000;
+
+            try {
+                this.image = new ImageIcon(getClass().getResource("/Assets/images/chicken/boss2.png")).getImage();
+            } catch (Exception e) {
+                System.out.println("Boos2Enemy image not found!");
+            }
+
         }
+
     }
 
     public void update(int screenWidth){
@@ -92,9 +110,14 @@ public class Boss {
     }
 
     public void draw(Graphics g){
-        //رسم غول
-        g.setColor(new Color(220,89,50));
-        g.fillRect((int)x, (int)y, width, height);
+        // ۱. رسم عکس غول به جای مستطیل نارنجی
+        if (image != null) {
+            g.drawImage(image, (int)x, (int)y, width, height, null);
+        } else {
+            // اگر عکس لود نشد، همان مستطیل نارنجی قدیمی را بکش
+            g.setColor(new Color(220,89,50));
+            g.fillRect((int)x, (int)y, width, height);
+        }
 
         // ۲. رسم نوار سلامت
         int barWidth = 100;

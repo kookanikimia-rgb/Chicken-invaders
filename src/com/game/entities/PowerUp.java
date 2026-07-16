@@ -1,5 +1,6 @@
 package com.game.entities;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class PowerUp {
@@ -11,6 +12,8 @@ public class PowerUp {
     private float speed;
     public int type;
 
+    public Image image;
+
     public static final int ADD_FIRE = 0;
     public static final int RAPID_FIRE = 1;
     public static final int EXTRA_LIFE = 2;
@@ -20,10 +23,29 @@ public class PowerUp {
     public PowerUp(float x, float y,int type) {
         this.x = x;
         this.y = y;
-        this.width = 20;
-        this.height = 20;
+        this.width = 40;
+        this.height = 40;
         this.speed = 2;
         this.type = type;
+
+        loadPowerUpImage();
+    }
+
+    private void loadPowerUpImage() {
+        String path = "";
+        switch (type) {
+            case ADD_FIRE:    path = "/Assets/images/powerup1/add_shot.png"; break;
+            case RAPID_FIRE:  path = "/Assets/images/powerup1/fast_shot.png"; break;
+            case EXTRA_LIFE:  path = "/Assets/images/powerup1/heal.png"; break;
+            case SHIELD:      path = "/Assets/images/powerup1/sheild.png"; break;
+            case FREEZE_BOMB: path = "/Assets/images/powerup1/freeze.png"; break;
+        }
+
+        try {
+            this.image = new ImageIcon(getClass().getResource(path)).getImage();
+        } catch (Exception e) {
+            System.out.println("PowerUp image not found: " + path);
+        }
     }
 
     public void update() {
@@ -31,31 +53,20 @@ public class PowerUp {
     }
 
     public void draw(Graphics g) {
-
-        switch (type) {
-
-            case ADD_FIRE:
-                g.setColor(Color.ORANGE);
-                break;
-
-            case RAPID_FIRE:
-                g.setColor(Color.YELLOW);
-                break;
-
-            case EXTRA_LIFE:
-                g.setColor(Color.GREEN);
-                break;
-
-            case SHIELD:
-                g.setColor(Color.CYAN);
-                break;
-
-            case FREEZE_BOMB:
-                g.setColor(Color.BLUE);
-                break;
+        // ۳. رسم عکس به جای مربع رنگی
+        if (image != null) {
+            g.drawImage(image, (int)x, (int)y, width, height, null);
+        } else {
+            // اگر عکس لود نشد، برای اینکه بازیکن بفهمد چه پاورآپی است، رنگ قدیمی را می‌کشیم
+            switch (type) {
+                case ADD_FIRE: g.setColor(Color.ORANGE); break;
+                case RAPID_FIRE: g.setColor(Color.YELLOW); break;
+                case EXTRA_LIFE: g.setColor(Color.GREEN); break;
+                case SHIELD: g.setColor(Color.CYAN); break;
+                case FREEZE_BOMB: g.setColor(Color.BLUE); break;
+            }
+            g.fillRect((int)x, (int)y, width, height);
         }
-
-        g.fillRect((int)x,(int)y,width,height);
     }
 
     public Rectangle getBounds() {

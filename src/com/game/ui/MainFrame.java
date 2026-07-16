@@ -1,5 +1,6 @@
 package com.game.ui;
 
+import com.game.audio.SettingsPanel;
 import com.game.database.DatabaseManager;
 
 import javax.swing.*;

@@ -18,14 +18,17 @@ public abstract class Enemy {
 
     public boolean isReplacement;
 
+    public Image image;
+
+
 
     public int eggInterval;
     private long lastEggDropTime;
 
 
     public Enemy(int hp,int levelEggInterval){
-        width = 30;
-        height = 30;
+        width = 40;
+        height = 40;
 
         this.hp = hp;
 
@@ -89,11 +92,14 @@ public abstract class Enemy {
     }
 
 
-    public void draw(Graphics g){
-
-        g.setColor(getColor());
-        g.fillRect(x,y,width,height);
-
+    public void draw(Graphics g) {
+        if (image != null) {
+            g.drawImage(image, x, y, width, height, null);
+        } else {
+            // اگر عکس لود نشده باشد، همان حالت رنگی را می‌کشد تا بازی خراب نشود
+            g.setColor(getColor());
+            g.fillRect(x, y, width, height);
+        }
     }
 
     protected abstract Color getColor();

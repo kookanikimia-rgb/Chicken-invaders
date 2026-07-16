@@ -7,7 +7,17 @@ import javax.swing.*;
 import java.awt.*;
 
 public class LoginPanel extends JPanel {
+
+    private Image backgroundImage;
+
     public LoginPanel(MainFrame frame){
+
+        try {
+            backgroundImage = new ImageIcon(getClass().getResource("/Assets/images/login-background.jpg")).getImage();
+        } catch (Exception e) {
+            System.out.println("Login background image not found, using default color.");
+        }
+
         setLayout(new GridBagLayout());
         setBackground(new Color(20,40,60));
 
@@ -16,7 +26,7 @@ public class LoginPanel extends JPanel {
         gbc.gridx = 0;
 
         JLabel title = new JLabel("WELCOME!");
-        title.setForeground(Color.white);
+        title.setForeground(new Color(250,40,190));
         title.setFont(new Font("Arial", Font.BOLD, 35));
         gbc.gridy = 0;
         add(title, gbc);
@@ -88,5 +98,13 @@ public class LoginPanel extends JPanel {
             }
         });
 
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.game.entities;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class ZigzagEnemy extends Enemy{
@@ -9,6 +10,12 @@ public class ZigzagEnemy extends Enemy{
     public ZigzagEnemy(int hp, int levelEggInterval){
         super(hp,levelEggInterval);
         pointValue = 20;
+
+        try {
+            this.image = new ImageIcon(getClass().getResource("/Assets/images/chicken/zigzag_chicken.png")).getImage();
+        } catch (Exception e) {
+            System.out.println("ZigZagEnemy image not found!");
+        }
     }
 
 

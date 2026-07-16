@@ -1,5 +1,6 @@
 package com.game.ui;
 
+import com.game.audio.SoundManager;
 import com.game.database.DatabaseManager;
 import com.game.entities.*;
 
@@ -26,6 +27,7 @@ public class GamePanel extends JPanel implements KeyListener {
     private boolean upPressed;
     private boolean downPressed;
     private boolean spacePressed;
+    private boolean isPaused;
 
     private ArrayList<Bullet> bullets ;
     private int shootCooldown ;
@@ -45,11 +47,17 @@ public class GamePanel extends JPanel implements KeyListener {
     private int currentLevel;
     private int bulletCount;
 
+    private Image backgroundImage;
+    private Image shieldIcon;
+    private Image freezeIcon;
+    private Image rapidFireIcon;
+
 
     public GamePanel(MainFrame frame){
 
         this.frame = frame;
         this.isGameOver = false;
+        this.isPaused = true;
 
         this.bullets = new ArrayList<>();
         this.powerUps = new ArrayList<>();
@@ -78,9 +86,26 @@ public class GamePanel extends JPanel implements KeyListener {
         });
 
         this.addKeyListener(this);
+
+        SoundManager.startBackgroundMusic();
+
+        this.shieldIcon = new ImageIcon(getClass().getResource("/Assets/images/powerup1/sheild.png")).getImage();
+        this.rapidFireIcon = new ImageIcon(getClass().getResource("/Assets/images/powerup1/fast_shot.png")).getImage();
+        this.freezeIcon = new ImageIcon(getClass().getResource("/Assets/images/powerup1/freeze.png")).getImage();
+
+        try {
+            backgroundImage = new ImageIcon(getClass().getResource("/Assets/images/main-menu-background.jpg")).getImage();
+        } catch (Exception e) {
+            System.out.println("MainMenu background image not found, using default color.");
+        }
+
     }
 
     private void update() {
+
+        if (isPaused)
+            return;
+
         //حرکت پلیر
         if (isGameOver) return;
 
@@ -107,6 +132,9 @@ public class GamePanel extends JPanel implements KeyListener {
 
                 bullets.add(new Bullet(player.x + player.width / 2 + offset, player.y));
             }
+
+            SoundManager.playShot();
+
             if (System.currentTimeMillis() < rapidFireEndTime)
                 shootCooldown = 5;
             else
@@ -155,6 +183,7 @@ public class GamePanel extends JPanel implements KeyListener {
         for (int i = 0; i < enemyGrid.gridEnemies.size(); i++) {
             Enemy e = enemyGrid.gridEnemies.get(i);
             if (e.isDead()) {
+                SoundManager.playExplosion();
                 addScore(e.pointValue);
 
                 Random rand = new Random();
@@ -325,6 +354,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
             if (currentLevel == 8) {
                 isWin = true;
+                SoundManager.playWin();
 
                 DatabaseManager.saveGame(
                         UserSession.getUserName(),
@@ -358,35 +388,63 @@ public class GamePanel extends JPanel implements KeyListener {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
 
-        g.setColor(new Color(100,100,200));
+        if (backgroundImage != null) {
+            // عکس را به اندازه کل پنل می‌کشد
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
+
+        g2d.setColor(new Color(0,0,0,150));
+        g2d.fillRoundRect(8,8,170,180,20,20);
+
+        g2d.setColor(new Color(80,180,255));
+        g2d.setStroke(new BasicStroke(2));
+        g2d.drawRoundRect(8,8,170,180,20,20);
+
         g.setFont(new Font("Arial", Font.BOLD, 15));
 
         int x = 20;
+        int y = 30;
+
         String currentUserName = UserSession.getUserName();
-        g.drawString("Player: " + currentUserName, x, 20);
-        g.drawString("Score: " + score, x, 45);
-        g.drawString("Level: " + currentLevel, x, 60 );
-        g.drawString("Lives: " + player.hp, x, 75);
-        g.drawString("Bullets: " + bulletCount, x,90);
+        g.setColor(Color.WHITE);
+        g.drawString("Player: " + currentUserName, x, y);
 
-        g.setColor(Color.YELLOW);
+        y += 25;
+        g.setColor(new Color(100,100,200));
+        g.drawString("Score: " + score, x, y);
+
+        y += 25;
+        g.setColor(new Color(190,40,130));
+        g.drawString("Level: " + currentLevel, x, y);
+
+        y += 25;
+        g.setColor(Color.GREEN);
+        g.drawString("Lives: " + player.hp, x, y);
+
+        y += 25;
+        g.setColor(new Color(189,46,80));
+        g.drawString("Bullets: " + bulletCount, x,y);
+
+
         if(System.currentTimeMillis() < rapidFireEndTime)
-            g.drawString("Rapid Fire",250,20);
+            g.drawImage(rapidFireIcon,20,145,32,32,null);
 
-        g.setColor(Color.CYAN);
-        if(System.currentTimeMillis() < shieldEndTime)
-            g.drawString("Shield",350,20);
+        if (System.currentTimeMillis() < shieldEndTime)
+            g.drawImage(shieldIcon, 52, 145, 32, 32, null);
 
-        g.setColor(Color.BLUE);
-        if(System.currentTimeMillis() < freezeEndTime)
-            g.drawString("Freeze",450,20);
+        if (System.currentTimeMillis() < freezeEndTime)
+            g.drawImage(freezeIcon, 84, 145, 32, 32, null);
 
-        g2d.setColor(Color.CYAN);
-        g2d.fillRect(player.x,player.y,player.width,player.height);
 
+        if (player.image != null) {
+            g2d.drawImage(player.image, player.x, player.y, player.width, player.height, null);
+        } else {
+            g2d.setColor(Color.CYAN);
+            g2d.fillRect(player.x, player.y, player.width, player.height);
+        }
         if(System.currentTimeMillis() < shieldEndTime){
 
-            g2d.setColor(new Color(0,255,255,120));
+            g2d.setColor(new Color(250,20,100));
 
             g2d.drawOval(
                     player.x - 8,
@@ -417,7 +475,53 @@ public class GamePanel extends JPanel implements KeyListener {
             p.draw(g);
         }
 
+        if (isPaused) {
+
+            g2d.setColor(new Color(0,0,0,170));
+            g2d.fillRect(0,0,getWidth(),getHeight());
+
+            g2d.setColor(Color.blue);
+            g2d.setFont(new Font("Arial", Font.BOLD, 60));
+
+            String msg = "PAUSED";
+
+            FontMetrics fm = g2d.getFontMetrics();
+
+            g2d.drawString(
+                    msg,
+                    (getWidth()-fm.stringWidth(msg))/2,
+                    getHeight()/2
+            );
+
+            g2d.setFont(new Font("Arial", Font.PLAIN, 22));
+
+            String sub = "Press P to Continue";
+
+            g2d.drawString(
+                    sub,
+                    (getWidth()-g2d.getFontMetrics().stringWidth(sub))/2,
+                    getHeight()/2 + 45
+            );
+        }
+
         if (isGameOver) {
+            int boxWidth = 450;
+            int boxHeight = 220;
+
+            int boxX = (getWidth() - boxWidth) / 2;
+            int boxY = (getHeight() - boxHeight) / 2 - 30;
+
+            // رنگ داخل باکس
+            g2d.setColor(new Color(20, 20, 40, 220));
+            g2d.fillRoundRect(boxX, boxY, boxWidth, boxHeight, 25, 25);
+
+            // رنگ حاشیه
+            g2d.setColor(new Color(255, 80, 80));
+            g2d.setStroke(new BasicStroke(3));
+            g2d.drawRoundRect(boxX, boxY, boxWidth, boxHeight, 25, 25);
+
+
+
             g2d.setColor(new Color(0,0,0,150));
             g2d.fillRect(0,0,getWidth(),getHeight());
             g2d.setColor(new Color(189,46,80));
@@ -436,12 +540,29 @@ public class GamePanel extends JPanel implements KeyListener {
                     (getHeight() / 2) + 40
             );
 
-            g2d.setColor(new Color(100,30,68));
+            g2d.setColor(new Color(250,10,250));
             g2d.setFont(new Font("Arial", Font.PLAIN, 20));
             String subMsg = "Press ESC to return to Menu";
-            g2d.drawString(subMsg, (getWidth() - g2d.getFontMetrics().stringWidth(subMsg)) / 2, (getHeight() / 2) + 85);
+            g2d.drawString(subMsg, (getWidth() - g2d.getFontMetrics().stringWidth(subMsg)) / 2, (getHeight() / 2) + 110);
         }
         if (isWin && !isGameOver) {
+            int boxWidth = 450;
+            int boxHeight = 220;
+
+            int boxX = (getWidth() - boxWidth) / 2;
+            int boxY = (getHeight() - boxHeight) / 2 - 30;
+
+            // رنگ داخل باکس
+            g2d.setColor(new Color(20, 20, 40, 220));
+            g2d.fillRoundRect(boxX, boxY, boxWidth, boxHeight, 25, 25);
+
+            // رنگ حاشیه
+            g2d.setColor(new Color(100, 180, 80));
+            g2d.setStroke(new BasicStroke(3));
+            g2d.drawRoundRect(boxX, boxY, boxWidth, boxHeight, 25, 25);
+
+
+
             g2d.setColor(new Color(0,0,0,150));
             g2d.fillRect(0,0,getWidth(),getHeight());
             g2d.setColor(new Color(10,200,98));
@@ -462,14 +583,13 @@ public class GamePanel extends JPanel implements KeyListener {
                     (getHeight() / 2) + 40
             );
 
-            g2d.setColor(new Color(100,30,69));
+            g2d.setColor(new Color(250,10,250));
             g2d.setFont(new Font("Arial", Font.PLAIN, 20));
             String subMsg = "Press ESC to return to Menu";
             g2d.drawString(subMsg,
                     (getWidth() - g2d.getFontMetrics().stringWidth(subMsg)) / 2,
-                    (getHeight() / 2) + 85);
+                    (getHeight() / 2) + 110);
         }
-
 }
 
     @Override
@@ -502,6 +622,10 @@ public class GamePanel extends JPanel implements KeyListener {
 
         if (key==KeyEvent.VK_SPACE)
             spacePressed = true;
+
+        if (key == KeyEvent.VK_P)
+            isPaused = !isPaused;
+
     }
 
     @Override
@@ -560,6 +684,9 @@ public class GamePanel extends JPanel implements KeyListener {
     }
 
     private void gameOver() {
+
+        SoundManager.playGameOver();
+
         isGameOver = true;
         gameTimer.stop();
 
@@ -583,5 +710,6 @@ public class GamePanel extends JPanel implements KeyListener {
     public void addScore(int points) {
         this.score += points;
     }
+
 
 }

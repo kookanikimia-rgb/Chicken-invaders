@@ -1,5 +1,6 @@
 package com.game.entities;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
 
@@ -7,7 +8,7 @@ public class ShooterEnemy extends Enemy {
 
     private Random random;
     private long lastShotTime;
-    private static final int SHOOT_INTERVAL = 3000; // هر ۲.۵ ثانیه حداکثر یک شلیک
+    private static final int SHOOT_INTERVAL = 3000;
 
     public ShooterEnemy(int hp, int levelEggInterval) {
         super(hp, levelEggInterval);
@@ -16,6 +17,12 @@ public class ShooterEnemy extends Enemy {
 
         random = new Random();
         lastShotTime = System.currentTimeMillis();
+
+        try {
+            this.image = new ImageIcon(getClass().getResource("/Assets/images/chicken/shooter_chicken.png")).getImage();
+        } catch (Exception e) {
+            System.out.println("ShooterEnemy image not found!");
+        }
     }
 
     @Override
