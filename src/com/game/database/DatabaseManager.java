@@ -133,18 +133,23 @@ public class DatabaseManager {
     public static void updateUserStats(String username, int score, int level) {
 
         String sql = """
-        UPDATE users
-        SET high_score = MAX(high_score, ?),
-            current_level = ?
-        WHERE username = ?
+         UPDATE users
+                    SET
+                        high_score = MAX(high_score, ?),
+                        current_level = CASE
+                                WHEN ? > high_score THEN ?
+                                ELSE current_level
+                        END
+                    WHERE username = ?
         """;
 
         try(Connection conn = DriverManager.getConnection(URL);
             PreparedStatement pstmt = conn.prepareStatement(sql)){
 
-            pstmt.setInt(1, score);
-            pstmt.setInt(2, level);
-            pstmt.setString(3, username);
+            pstmt.setInt(1, score);      // برای MAX
+            pstmt.setInt(2, score);      // برای شرط WHEN
+            pstmt.setInt(3, level);      // لولی که باید ذخیره شود
+            pstmt.setString(4, username);
 
             pstmt.executeUpdate();
 
