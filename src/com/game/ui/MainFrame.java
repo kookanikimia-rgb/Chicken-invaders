@@ -33,6 +33,7 @@ public class MainFrame extends JFrame {
         mainContainer.add(gamePanel, "GAME");
         settingsPanel = new SettingsPanel(this);
         mainContainer.add(settingsPanel, "SETTINGS");
+        mainContainer.add(new HowToPlayPanel(this),"HOW_TO_PLAY");
 
         add(mainContainer);
         setVisible(true);

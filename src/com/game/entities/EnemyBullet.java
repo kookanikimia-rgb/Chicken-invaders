@@ -1,14 +1,17 @@
 package com.game.entities;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class EnemyBullet {
 
     public int x,y;
-    public int width = 12;
-    public int height = 4;
+    public int width = 40;
+    public int height = 35;
 
     private int dx;
+
+    public Image image;
 
     public EnemyBullet(int x,int y,int playerX){
 
@@ -19,6 +22,12 @@ public class EnemyBullet {
             dx = -6;
         else
             dx = 6;
+
+        try {
+            this.image = new ImageIcon(getClass().getResource("/Assets/images/enemy bullet.png")).getImage();
+        } catch (Exception e) {
+            System.out.println("Bullet image not found!");
+        }
     }
 
     public void move(){
@@ -26,8 +35,13 @@ public class EnemyBullet {
     }
 
     public void draw(Graphics g){
-        g.setColor(Color.ORANGE);
-        g.fillRect(x,y,width,height);
+
+        if (image != null) {
+            g.drawImage(image, x, y, width, height, null);
+        } else {
+            g.setColor(Color.ORANGE);
+            g.fillRect(x, y, width, height);
+        }
     }
 
     public Rectangle getBounds(){
