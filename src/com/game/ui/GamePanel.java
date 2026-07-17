@@ -671,6 +671,10 @@ public class GamePanel extends JPanel implements KeyListener {
 
     public void startGame() {
         resetGame();
+        isPaused = false;
+
+        requestFocusInWindow();
+
 
         if (!gameTimer.isRunning()) {
             gameTimer.start();
@@ -697,6 +701,7 @@ public class GamePanel extends JPanel implements KeyListener {
         freezeEndTime = 0;
         isGameOver = false;
         isWin = false;
+        isPaused = false;
     }
 
     private void gameOver() {
