@@ -18,7 +18,7 @@ public class Explosion {
         this.startTime = System.currentTimeMillis();
 
         try {
-            this.image = new ImageIcon(getClass().getResource("/Assets/images/airplan/Explosion2.png")).getImage();
+            this.image = new ImageIcon(getClass().getResource("/Assets/images/explosion.png")).getImage();
         } catch (Exception e) {
             System.out.println("Explosion image not found!");
         }

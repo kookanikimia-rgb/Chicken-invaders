@@ -39,6 +39,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private EnemyGrid enemyGrid;
     private Boss boss;
+    private long bossDeathTime;
     private ArrayList<Egg> eggs ;
     private ArrayList<EnemyBullet> enemyBullets;
     private ArrayList<Explosion> explosions;
@@ -71,6 +72,7 @@ public class GamePanel extends JPanel implements KeyListener {
         this.enemyBullets = new ArrayList<>();
         this.explosions = new ArrayList<>();
         this.enemyGrid = new EnemyGrid(1);
+        this.bossDeathTime = 0;
 
         this.player = new Plane();
 
@@ -359,6 +361,14 @@ public class GamePanel extends JPanel implements KeyListener {
         }
         if (boss != null && boss.isDead()) {
 
+            bossDeathTime = System.currentTimeMillis();
+            SoundManager.playExplosion();
+
+            // افکت
+            int centerX = (int)(boss.x + boss.width / 2);
+            int centerY = (int)(boss.y + boss.height / 2);
+            explosions.add(new Explosion(centerX, centerY, 100));
+
             if (currentLevel == 8) {
                 isWin = true;
                 SoundManager.playWin();
@@ -384,9 +394,12 @@ public class GamePanel extends JPanel implements KeyListener {
             gameTimer.stop();
             return;
         }
-        currentLevel++;
-        boss = null;
-        enemyGrid = new EnemyGrid(currentLevel);
+            if (bossDeathTime != 0 && System.currentTimeMillis() - bossDeathTime > 500) {
+                currentLevel++;
+                boss = null;
+                bossDeathTime = 0;
+                enemyGrid = new EnemyGrid(currentLevel);
+            }
         }
     }
 
