@@ -57,6 +57,7 @@ public class MainMenuPanel extends JPanel {
                     case "Settings" -> frame.showPage("SETTINGS");
                     case "Exit" -> System.exit(0);
                     case "High Scores" -> frame.showPage("HIGH_SCORES");
+                    case "How To Play" -> frame.showPage("HOW_TO_PLAY");
                 }
             });
 

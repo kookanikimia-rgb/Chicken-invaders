@@ -41,6 +41,7 @@ public class GamePanel extends JPanel implements KeyListener {
     private Boss boss;
     private ArrayList<Egg> eggs ;
     private ArrayList<EnemyBullet> enemyBullets;
+    private ArrayList<Explosion> explosions;
 
 
     private int score;
@@ -67,7 +68,8 @@ public class GamePanel extends JPanel implements KeyListener {
         this.shootCooldown = 0;
 
         this.eggs = new ArrayList<>();
-        enemyBullets = new ArrayList<>();
+        this.enemyBullets = new ArrayList<>();
+        this.explosions = new ArrayList<>();
         this.enemyGrid = new EnemyGrid(1);
 
         this.player = new Plane();
@@ -184,6 +186,9 @@ public class GamePanel extends JPanel implements KeyListener {
             Enemy e = enemyGrid.gridEnemies.get(i);
             if (e.isDead()) {
                 SoundManager.playExplosion();
+                int centerX = e.x + (e.width / 2); // پیدا کردن مرکز افقی مرغ
+                int centerY = e.y + (e.height / 2); // پیدا کردن مرکز عمودی مرغ
+                explosions.add(new Explosion(centerX, centerY, 60));
                 addScore(e.pointValue);
 
                 Random rand = new Random();
@@ -209,11 +214,13 @@ public class GamePanel extends JPanel implements KeyListener {
         if (currentLevel == 4 || currentLevel == 8) {
             // اگر لول ۴ یا ۸ است، غول را مدیریت کن
             if (boss == null) boss = new Boss(currentLevel);
+
+            if (System.currentTimeMillis() > freezeEndTime){
             boss.update(getWidth());
 
             // تخم‌های غول را به لیست تخم‌های بازی اضافه کن
             List<Egg> bossEggs = boss.attack();
-            eggs.addAll(bossEggs);
+            eggs.addAll(bossEggs);}
 
             if (boss.isDead()) {
                 addScore((currentLevel == 4) ? 500 : 1000);
@@ -461,6 +468,15 @@ public class GamePanel extends JPanel implements KeyListener {
             if (boss != null) boss.draw(g);}
         else{
             enemyGrid.draw(g);
+        }
+
+        for (int i = explosions.size() - 1; i >= 0; i--) {
+            Explosion exp = explosions.get(i);
+            if (exp.isFinished()) {
+                explosions.remove(i); // اگر زمانش تمام شد، از لیست پاک کن
+            } else {
+                exp.draw(g); // در غیر این صورت رسمش کن
+            }
         }
 
         for (Egg egg : eggs) {
