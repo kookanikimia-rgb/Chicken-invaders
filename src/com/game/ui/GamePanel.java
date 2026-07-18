@@ -386,21 +386,28 @@ public class GamePanel extends JPanel implements KeyListener {
 
         if (enemyGrid != null && enemyGrid.gridEnemies.isEmpty()) {
             if (currentLevel < 8) {
+
+                bullets.clear();
+                eggs.clear();
+                enemyBullets.clear();
+                explosions.clear();
+                powerUps.clear();
+
                 currentLevel++;
                 enemyGrid = new EnemyGrid(currentLevel);
                 addScore(200);
             }
         }
         if (boss != null && boss.isDead()) {
+            if (bossDeathTime == 0) {
+                bossDeathTime = gameTime();
+                SoundManager.playExplosion();
 
-            bossDeathTime = gameTime();
-            SoundManager.playExplosion();
-
-            // افکت
-            int centerX = (int)(boss.x + boss.width / 2);
-            int centerY = (int)(boss.y + boss.height / 2);
-            explosions.add(new Explosion(centerX, centerY, 100,gameTime()));
-
+                // افکت
+                int centerX = (int) (boss.x + boss.width / 2);
+                int centerY = (int) (boss.y + boss.height / 2);
+                explosions.add(new Explosion(centerX, centerY, 100, gameTime()));
+            }
             if (currentLevel == 8) {
                 isWin = true;
                 SoundManager.playWin();
@@ -421,13 +428,23 @@ public class GamePanel extends JPanel implements KeyListener {
                         currentLevel
                 );
 
-            eggs.clear();
-            enemyBullets.clear();
+                bullets.clear();
+                eggs.clear();
+                enemyBullets.clear();
+                explosions.clear();
+                powerUps.clear();
             gameTimer.stop();
             return;
         }
             if (bossDeathTime != 0 && gameTime() - bossDeathTime > 500) {
                 currentLevel++;
+
+                bullets.clear();
+                eggs.clear();
+                enemyBullets.clear();
+                explosions.clear();
+                powerUps.clear();
+
                 boss = null;
                 bossDeathTime = 0;
                 enemyGrid = new EnemyGrid(currentLevel);
