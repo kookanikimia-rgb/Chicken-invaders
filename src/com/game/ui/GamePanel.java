@@ -54,6 +54,9 @@ public class GamePanel extends JPanel implements KeyListener {
     private Image freezeIcon;
     private Image rapidFireIcon;
 
+    private long pausedDuration = 0;
+    private long pauseStartTime = 0;
+
 
     public GamePanel(MainFrame frame){
 
@@ -110,8 +113,10 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private void update() {
 
-        if (isPaused)
+        if (isPaused){
+            repaint();
             return;
+        }
 
         //حرکت پلیر
         if (isGameOver) return;
@@ -133,7 +138,7 @@ public class GamePanel extends JPanel implements KeyListener {
         //شلیک
         if (spacePressed) {
 
-            long currentTime = System.currentTimeMillis();
+            long currentTime = gameTime();
 
             int delay;
 
@@ -195,7 +200,7 @@ public class GamePanel extends JPanel implements KeyListener {
         //برخورد پلیر با دشمن
         for (Enemy e : enemyGrid.gridEnemies)
             if (player.getBounds().intersects(e.getBounds())) {
-                if (System.currentTimeMillis() > shieldEndTime)
+                if (gameTime() > shieldEndTime)
                     player.takeDamage();
                 e.hp = 0;
                 if (player.hp <= 0)
@@ -239,7 +244,7 @@ public class GamePanel extends JPanel implements KeyListener {
             // اگر لول ۴ یا ۸ است، غول را مدیریت کن
             if (boss == null) boss = new Boss(currentLevel);
 
-            if (System.currentTimeMillis() > freezeEndTime){
+            if (gameTime() > freezeEndTime){
             boss.update(getWidth());
 
             // تخم‌های غول را به لیست تخم‌های بازی اضافه کن
@@ -258,7 +263,7 @@ public class GamePanel extends JPanel implements KeyListener {
             }
         } else {
 
-            if (System.currentTimeMillis() > freezeEndTime)
+            if (gameTime() > freezeEndTime)
                 enemyGrid.update(getWidth());
 
             if (enemyGrid.isBottomReached()) {
@@ -274,7 +279,7 @@ public class GamePanel extends JPanel implements KeyListener {
                 }
                 if (e instanceof ShooterEnemy) {
 
-                    if (System.currentTimeMillis() > freezeEndTime) {
+                    if (gameTime() > freezeEndTime) {
                         EnemyBullet b = ((ShooterEnemy) e).shoot(player.x);
 
                         if (b != null)
@@ -306,7 +311,7 @@ public class GamePanel extends JPanel implements KeyListener {
                         break;
 
                     case PowerUp.RAPID_FIRE:
-                        rapidFireEndTime = System.currentTimeMillis() + 8000;
+                        rapidFireEndTime = gameTime() + 8000;
                         break;
 
                     case PowerUp.EXTRA_LIFE:
@@ -315,11 +320,11 @@ public class GamePanel extends JPanel implements KeyListener {
                         break;
 
                     case PowerUp.SHIELD:
-                        shieldEndTime = System.currentTimeMillis() + 10000;
+                        shieldEndTime = gameTime() + 10000;
                         break;
 
                     case PowerUp.FREEZE_BOMB:
-                        freezeEndTime = System.currentTimeMillis() + 3000;
+                        freezeEndTime = gameTime() + 3000;
                         break;
                 }
 
@@ -331,7 +336,7 @@ public class GamePanel extends JPanel implements KeyListener {
         // آپدیت حرکت تخم‌ها و برخورد با پلیر
         for (int i = 0; i < eggs.size(); i++) {
             Egg egg = eggs.get(i);
-            if (System.currentTimeMillis() > freezeEndTime)
+            if (gameTime() > freezeEndTime)
                 egg.move();
 
             if (egg.y > getHeight()) {
@@ -341,7 +346,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
             if (egg.getBounds().intersects(player.getBounds())) {
 
-                if (System.currentTimeMillis() > shieldEndTime)
+                if (gameTime() > shieldEndTime)
                     player.takeDamage();
 
                 eggs.remove(i--);
@@ -354,12 +359,12 @@ public class GamePanel extends JPanel implements KeyListener {
 
             EnemyBullet b = enemyBullets.get(i);
 
-            if (System.currentTimeMillis() > freezeEndTime)
+            if (gameTime() > freezeEndTime)
                 b.move();
 
             if (b.getBounds().intersects(player.getBounds())) {
 
-                if (System.currentTimeMillis() > shieldEndTime)
+                if (gameTime() > shieldEndTime)
                     player.takeDamage();
 
                 enemyBullets.remove(i--);
@@ -383,7 +388,7 @@ public class GamePanel extends JPanel implements KeyListener {
         }
         if (boss != null && boss.isDead()) {
 
-            bossDeathTime = System.currentTimeMillis();
+            bossDeathTime = gameTime();
             SoundManager.playExplosion();
 
             // افکت
@@ -416,7 +421,7 @@ public class GamePanel extends JPanel implements KeyListener {
             gameTimer.stop();
             return;
         }
-            if (bossDeathTime != 0 && System.currentTimeMillis() - bossDeathTime > 500) {
+            if (bossDeathTime != 0 && gameTime() - bossDeathTime > 500) {
                 currentLevel++;
                 boss = null;
                 bossDeathTime = 0;
@@ -468,13 +473,13 @@ public class GamePanel extends JPanel implements KeyListener {
         g.drawString("Bullets: " + bulletCount, x,y);
 
 
-        if(System.currentTimeMillis() < rapidFireEndTime)
+        if(gameTime() < rapidFireEndTime)
             g.drawImage(rapidFireIcon,20,145,32,32,null);
 
-        if (System.currentTimeMillis() < shieldEndTime)
+        if (gameTime() < shieldEndTime)
             g.drawImage(shieldIcon, 52, 145, 32, 32, null);
 
-        if (System.currentTimeMillis() < freezeEndTime)
+        if (gameTime() < freezeEndTime)
             g.drawImage(freezeIcon, 84, 145, 32, 32, null);
 
 
@@ -484,7 +489,7 @@ public class GamePanel extends JPanel implements KeyListener {
             g2d.setColor(Color.CYAN);
             g2d.fillRect(player.x, player.y, player.width, player.height);
         }
-        if(System.currentTimeMillis() < shieldEndTime){
+        if(gameTime() < shieldEndTime){
 
             g2d.setColor(new Color(250,20,100));
 
@@ -675,7 +680,18 @@ public class GamePanel extends JPanel implements KeyListener {
             spacePressed = true;
 
         if (key == KeyEvent.VK_P)
-            isPaused = !isPaused;
+            if (!isPaused) {
+
+                isPaused = true;
+                pauseStartTime = System.currentTimeMillis();
+
+            } else {
+
+                isPaused = false;
+                pausedDuration += System.currentTimeMillis() - pauseStartTime;
+
+            }
+
 
     }
 
@@ -742,6 +758,8 @@ public class GamePanel extends JPanel implements KeyListener {
         isGameOver = false;
         isWin = false;
         isPaused = false;
+        pausedDuration = 0;
+        pauseStartTime = 0;
     }
 
     private void gameOver() {
@@ -772,5 +790,8 @@ public class GamePanel extends JPanel implements KeyListener {
         this.score += points;
     }
 
-
+    private long gameTime() {
+        long now = isPaused ? pauseStartTime : System.currentTimeMillis();
+        return now - pausedDuration;
+    }
 }
