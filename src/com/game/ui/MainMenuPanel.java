@@ -38,7 +38,7 @@ public class MainMenuPanel extends JPanel {
         add(titleLabel, gbc);
 
 
-        String[] buttons = {"New Game", "High Scores", "Settings", "How To Play", "Exit"};
+        String[] buttons = {"New Game", "High Scores", "Settings", "How To Play","Store", "Exit"};
 
         for (int i = 0; i < buttons.length; i++) {
             String text = buttons[i];
@@ -58,6 +58,7 @@ public class MainMenuPanel extends JPanel {
                     case "Exit" -> System.exit(0);
                     case "High Scores" -> frame.showPage("HIGH_SCORES");
                     case "How To Play" -> frame.showPage("HOW_TO_PLAY");
+                    case "Store" -> frame.showPage("STORE");
                 }
             });
 

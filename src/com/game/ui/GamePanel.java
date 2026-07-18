@@ -30,7 +30,7 @@ public class GamePanel extends JPanel implements KeyListener {
     private boolean isPaused;
 
     private ArrayList<Bullet> bullets ;
-    private int shootCooldown ;
+    private long lastShotTime;
     private ArrayList<PowerUp> powerUps;
 
     private long rapidFireEndTime = 0;
@@ -65,14 +65,17 @@ public class GamePanel extends JPanel implements KeyListener {
         this.rapidFireEndTime = 0;
         this.shieldEndTime = 0;
         this.freezeEndTime = 0;
-        this.shootCooldown = 0;
+        this.lastShotTime = 0;
 
         this.eggs = new ArrayList<>();
         this.enemyBullets = new ArrayList<>();
         this.explosions = new ArrayList<>();
         this.enemyGrid = new EnemyGrid(1);
 
-        this.player = new Plane();
+
+        String planeName = DatabaseManager.getSelectedPlane(UserSession.getUserName());
+        PlaneInfo planeInfo = DatabaseManager.getPlaneInfo(planeName);
+        this.player = new Plane(planeInfo);
 
         this.score = 0;
         this.currentLevel = 1;
@@ -126,25 +129,34 @@ public class GamePanel extends JPanel implements KeyListener {
 
         player.keepInBounds(getWidth(), getHeight());
         //شلیک
-        if (spacePressed && shootCooldown <= 0) {
+        if (spacePressed) {
 
-            for (int i = 0; i < bulletCount; i++) {
+            long currentTime = System.currentTimeMillis();
 
-                int offset = (i - bulletCount / 2) * 10;
+            int delay;
 
-                bullets.add(new Bullet(player.x + player.width / 2 + offset, player.y));
-            }
-
-            SoundManager.playShot();
-
-            if (System.currentTimeMillis() < rapidFireEndTime)
-                shootCooldown = 5;
+            if (currentTime < rapidFireEndTime)
+                delay = 80;
             else
-                shootCooldown = 15;
-        }
+                delay = player.planeInfo.shootDelay;
 
-        if (shootCooldown > 0)
-            shootCooldown--;
+            if (currentTime - lastShotTime >= delay) {
+
+                for (int i = 0; i < bulletCount; i++) {
+
+                    int offset = (i - bulletCount / 2) * 10;
+
+                    bullets.add(new Bullet(
+                            player.x + player.width / 2 + offset,
+                            player.y
+                    ));
+                }
+
+                SoundManager.playShot();
+
+                lastShotTime = currentTime;
+            }
+        }
         //  آپدیت تیر ها و برخورد با دشمنان
         for (int i = 0; i < bullets.size(); i++) {
             Bullet b = bullets.get(i);
@@ -166,7 +178,13 @@ public class GamePanel extends JPanel implements KeyListener {
             } else if (boss != null) {
                 // اگر غول روی صفحه است، چک کن تیر به او خورده یا نه
                 if (b.getBounds().intersects(boss.getBounds())) {
-                    boss.takeDamage();
+
+                    int damage = 1;
+                    if(player.planeInfo.doubleBossDamage){
+                        damage = 2;
+                    }
+
+                    boss.takeDamage(damage);
                     bullets.remove(i--);
                 }
             }
@@ -683,8 +701,14 @@ public class GamePanel extends JPanel implements KeyListener {
 
 
     private void resetGame() {
-        player = new Plane();
-        player.hp = 3;
+        String planeName =
+                DatabaseManager.getSelectedPlane(UserSession.getUserName());
+
+        PlaneInfo planeInfo =
+                DatabaseManager.getPlaneInfo(planeName);
+
+        player = new Plane(planeInfo);
+        lastShotTime = 0;
         currentLevel = 1;
         score = 0;
         bulletCount = 1;
@@ -695,7 +719,6 @@ public class GamePanel extends JPanel implements KeyListener {
         enemyBullets.clear();
         powerUps.clear();
         eggs.clear();
-        shootCooldown = 0;
         rapidFireEndTime = 0;
         shieldEndTime = 0;
         freezeEndTime = 0;

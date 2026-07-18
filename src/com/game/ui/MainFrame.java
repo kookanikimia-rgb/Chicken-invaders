@@ -12,6 +12,7 @@ public class MainFrame extends JFrame {
     private CardLayout cardLayout;
     private SettingsPanel settingsPanel;
     private GamePanel gamePanel;
+    private StorePanel storePanel;
 
     public MainFrame(){
         DatabaseManager.initializeDatabase();
@@ -29,11 +30,13 @@ public class MainFrame extends JFrame {
         mainContainer.add(new LoginPanel(this),"LOGIN");
         mainContainer.add(new MainMenuPanel(this),"MENU");
         mainContainer.add(new HighScoresPanel(this),"HIGH_SCORES");
+        mainContainer.add(new HowToPlayPanel(this),"HOW_TO_PLAY");
         gamePanel = new GamePanel(this);
         mainContainer.add(gamePanel, "GAME");
         settingsPanel = new SettingsPanel(this);
         mainContainer.add(settingsPanel, "SETTINGS");
-        mainContainer.add(new HowToPlayPanel(this),"HOW_TO_PLAY");
+        storePanel = new StorePanel(this);
+        mainContainer.add(storePanel,"STORE");
 
         add(mainContainer);
         setVisible(true);
@@ -49,6 +52,17 @@ public class MainFrame extends JFrame {
             mainContainer.remove(2);
 
             mainContainer.add(new HighScoresPanel(this),"HIGH_SCORES");
+
+            revalidate();
+            repaint();
+        }
+        if(pageName.equals("STORE")){
+
+            mainContainer.remove(storePanel);
+
+            storePanel = new StorePanel(this);
+
+            mainContainer.add(storePanel,"STORE");
 
             revalidate();
             repaint();

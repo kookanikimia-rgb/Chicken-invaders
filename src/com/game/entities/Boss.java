@@ -138,8 +138,8 @@ public class Boss {
         g.setColor(Color.BLACK);
         g.drawRect(barX, barY, barWidth, barHeight);
     }
-    public void takeDamage(){
-        hp--;
+    public void takeDamage(int damage){
+        hp -=damage;
     }
     public boolean isDead(){
         return hp <= 0;
