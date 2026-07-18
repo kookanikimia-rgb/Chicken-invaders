@@ -16,11 +16,12 @@ public class FastEnemy extends Enemy{
         }
     }
     @Override
-    protected int getReplacementSpeed() {
-        return 4;
+    protected float getReplacementSpeed() {
+        return 4f;
     }
+
     @Override
-    public void update(int direction,int speed){
+    public void update(int direction,float speed){
         if(isReplacement){
 
             moveToCell();

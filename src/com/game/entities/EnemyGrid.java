@@ -6,11 +6,11 @@ import java.util.Random;
 
 public class EnemyGrid {
 
-    private int gridX,gridY;
+    private float gridX,gridY;
 
     private int direction;
 
-    private int gridSpeed;
+    private float gridSpeed;
     private int dropStep;
 
     public int[][] cellHits;
@@ -32,7 +32,7 @@ public class EnemyGrid {
         this.direction = 1;
 
         config = LevelConfig.getLevel(level);
-        this.gridSpeed = (int)config.speed;
+        this.gridSpeed = config.speed;
         this.dropStep = config.dropStep;
 
         this.cellHits = new int[5][8];
@@ -136,7 +136,7 @@ public class EnemyGrid {
             if(e.isReplacement)
                 continue;
 
-            int nextX = e.x + direction * gridSpeed;
+            float nextX = e.x + direction * gridSpeed;
 
             if(nextX < 0 || nextX + e.width > screenWidth){
                 hitEdge = true;

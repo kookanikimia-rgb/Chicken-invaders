@@ -20,13 +20,13 @@ public class ZigzagEnemy extends Enemy{
 
 
     @Override
-    public void update(int direction,int speed){
+    public void update(int direction,float speed){
 
         if(isReplacement){
 
             timer++;
 
-            x += (int)(Math.sin(timer * 0.3) * 3);
+            x += Math.sin(timer * 0.3) * 3;
 
             moveToCell();
 
@@ -35,7 +35,7 @@ public class ZigzagEnemy extends Enemy{
             timer++;
 
             //x += direction * speed;
-            x += (int)(Math.sin(timer * 0.2) * 2);
+            x += Math.sin(timer * 0.2) * 2;
         }
     }
 

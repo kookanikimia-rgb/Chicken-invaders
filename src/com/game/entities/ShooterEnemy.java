@@ -26,13 +26,13 @@ public class ShooterEnemy extends Enemy {
     }
 
     @Override
-    public void update(int direction, int gridSpeed) {
+    public void update(int direction, float gridSpeed) {
 
         if (isReplacement) {
             moveToCell();
         }
     }
-    public EnemyBullet shoot(int playerX) {
+    public EnemyBullet shoot(float playerX) {
 
         long currentTime = System.currentTimeMillis();
 
@@ -44,9 +44,9 @@ public class ShooterEnemy extends Enemy {
                 lastShotTime = currentTime;
 
                 return new EnemyBullet(
-                        x + width / 2,
-                        y + height / 2,
-                        playerX
+                        (int) x + width / 2,
+                        (int) y + height / 2,
+                        (int) playerX
                 );
             }
         }

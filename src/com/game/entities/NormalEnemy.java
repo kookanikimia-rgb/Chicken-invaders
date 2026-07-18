@@ -17,7 +17,7 @@ public class NormalEnemy extends Enemy{
     }
 
     @Override
-    public void update(int direction,int speed){
+    public void update(int direction,float speed){
 
         if(isReplacement){
 

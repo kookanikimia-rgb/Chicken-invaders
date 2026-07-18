@@ -4,15 +4,15 @@ import java.awt.*;
 
 public abstract class Enemy {
 
-    public int x,y;
+    public float x,y;
     public int width;
     public int height;
 
     public int hp;
     public int row, col;
 
-    public int targetX;
-    public int targetY;
+    public float targetX;
+    public float targetY;
 
     public int pointValue;
 
@@ -36,7 +36,7 @@ public abstract class Enemy {
         this.lastEggDropTime = System.currentTimeMillis();
     }
 
-    public abstract void update(int direction, int gridSpeed);
+    public abstract void update(int direction, float gridSpeed);
 
     public void takeDamage(){hp--;}
 
@@ -46,7 +46,7 @@ public abstract class Enemy {
 
     protected void moveToCell() {
 
-        int speed = getReplacementSpeed();
+        float speed = getReplacementSpeed();
 
         // محور X
         if (Math.abs(targetX - x) <= speed) {
@@ -78,15 +78,15 @@ public abstract class Enemy {
         }
     }
 
-    protected int getReplacementSpeed() {
-        return 2;
+    protected float getReplacementSpeed() {
+        return 2f;
     }
 
     public Egg dropEgg() {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastEggDropTime >= this.eggInterval) { // استفاده از متغیر به جای عدد ثابت
             lastEggDropTime = currentTime;
-            return new Egg(this.x + this.width/2, this.y + this.height);
+            return new Egg((int)this.x + this.width/2, (int)this.y + this.height);
         }
         return null;
     }
@@ -94,18 +94,18 @@ public abstract class Enemy {
 
     public void draw(Graphics g) {
         if (image != null) {
-            g.drawImage(image, x, y, width, height, null);
+            g.drawImage(image, (int)x, (int)y, width, height, null);
         } else {
             // اگر عکس لود نشده باشد، همان حالت رنگی را می‌کشد تا بازی خراب نشود
             g.setColor(getColor());
-            g.fillRect(x, y, width, height);
+            g.fillRect((int)x, (int)y, width, height);
         }
     }
 
     protected abstract Color getColor();
 
     public Rectangle getBounds(){
-    return new Rectangle(x,y,width,height);
+    return new Rectangle((int)x,(int)y,width,height);
 }
 
 }

@@ -5,22 +5,55 @@ import java.awt.*;
 
 public class Plane {
     public int x,y;
-    public int width = 80;
-    public int height = 80;
-    public int hp = 3;
-    public int speed = 5;
+    public int width;
+    public int height;
+    public int hp;
+    public int speed;
 
     public Image image;
 
-    public Plane(){
+    public PlaneInfo planeInfo;
+
+    public Plane(PlaneInfo planeInfo){
+
+        this.planeInfo = planeInfo;
+
+        this.speed = planeInfo.speed;
+        this.hp = planeInfo.hp;
+
+        this.width = 80;
+        this.height = 80;
         this.x = 600/2 - width/2;
         this.y = 800-100;
 
-        try {
-            this.image = new ImageIcon(getClass().getResource("/Assets/images/airplan/1.png")).getImage();
 
-        } catch (Exception e) {
-            System.out.println("Plane image not found! Using default rectangle.");
+        String imagePath;
+
+        switch (planeInfo.name){
+
+            case "FAST":
+                imagePath = "/Assets/images/airplan/5.png";
+                break;
+
+            case "HEAVY":
+                imagePath = "/Assets/images/airplan/3.png";
+                break;
+
+            case "SNIPER":
+                imagePath = "/Assets/images/airplan/6.png";
+                break;
+
+            default:
+                imagePath = "/Assets/images/airplan/2.png";
+                break;
+        }
+
+        try{
+            image = new ImageIcon(
+                    getClass().getResource(imagePath)
+            ).getImage();
+        }catch(Exception e){
+            System.out.println("Plane image not found!");
         }
 
     }

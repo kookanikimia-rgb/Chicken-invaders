@@ -1,5 +1,7 @@
 package com.game.database;
 
+import com.game.entities.PlaneInfo;
+
 import java.sql.*;
 
 public class DatabaseManager {
@@ -16,7 +18,8 @@ public class DatabaseManager {
                 bg_music INTEGER DEFAULT 1,
                 shot_sound INTEGER DEFAULT 1,
                 crash_sound INTEGER DEFAULT 1,
-                game_over_sound INTEGER DEFAULT 1
+                game_over_sound INTEGER DEFAULT 1,
+                selected_plane TEXT DEFAULT 'DEFAULT'    
             );
             """;
 
@@ -37,6 +40,13 @@ public class DatabaseManager {
         try (Connection conn = DriverManager.getConnection(URL);
              Statement stmt = conn.createStatement()) {
             stmt.execute(createUsersTable);
+            try {
+                stmt.execute("""
+                     ALTER TABLE users
+                     ADD COLUMN selected_plane TEXT DEFAULT 'DEFAULT'
+            """);
+            } catch (SQLException ignored) {
+            }
             stmt.execute(createGameHistoryTable);
             System.out.println("Database initialized successfully!");
         } catch (SQLException e) {
@@ -222,4 +232,92 @@ public class DatabaseManager {
 
         return null;
     }
+
+    public static String getSelectedPlane(String username) {
+
+        String sql = """
+        SELECT selected_plane
+        FROM users
+        WHERE username = ?
+        """;
+
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("selected_plane");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return "DEFAULT";
+    }
+
+    public static void updateSelectedPlane(String username, String plane) {
+
+        String sql = """
+        UPDATE users
+        SET selected_plane = ?
+        WHERE username = ?
+        """;
+
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, plane);
+            pstmt.setString(2, username);
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static PlaneInfo getPlaneInfo(String planeName) {
+
+        switch (planeName) {
+
+            case "FAST":
+                return new PlaneInfo("FAST",5000,7,250,3,false);
+
+            case "HEAVY":
+                return new PlaneInfo("HEAVY",8000,4,200,5,false);
+
+            case "SNIPER":
+                return new PlaneInfo("SNIPER",10000,5,150,3,true);
+
+            default:
+                return new PlaneInfo("DEFAULT",0,5,300,3,false);
+        }
+    }
+
+    public static int getHighScore(String username) {
+
+        String sql = "SELECT high_score FROM users WHERE username = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("high_score");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
 }

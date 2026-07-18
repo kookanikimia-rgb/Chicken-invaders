@@ -19,9 +19,9 @@ public class EnemyBullet {
         this.y = y;
 
         if(playerX > x)
-            dx = -6;
-        else
             dx = 6;
+        else
+            dx = -6;
 
         try {
             this.image = new ImageIcon(getClass().getResource("/Assets/images/enemy bullet.png")).getImage();
@@ -31,7 +31,7 @@ public class EnemyBullet {
     }
 
     public void move(){
-        x -=dx;
+        x +=dx;
     }
 
     public void draw(Graphics g){
