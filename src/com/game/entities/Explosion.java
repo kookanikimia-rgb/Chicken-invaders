@@ -29,7 +29,7 @@ public class Explosion {
     }
 
     public void draw(Graphics g,long gameTime) {
-        long passedTime = System.currentTimeMillis() - startTime;
+        long passedTime = gameTime - startTime;
         double progress = passedTime / (double) duration;
 
         // اندازه عکس از ۲۰ پیکسل شروع شده و تا maxSize بزرگ می‌شود

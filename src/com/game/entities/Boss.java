@@ -84,7 +84,7 @@ public class Boss {
 
     public List<Egg> attack(long gameTime){
         List<Egg> newEggs = new ArrayList<>();
-        long currentTime = System.currentTimeMillis();
+        long currentTime = gameTime;
 
         int interval = (level == 4) ? 1500 : 1000;
 

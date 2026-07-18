@@ -13,6 +13,7 @@ public class MainFrame extends JFrame {
     private SettingsPanel settingsPanel;
     private GamePanel gamePanel;
     private StorePanel storePanel;
+    private HighScoresPanel highScoresPanel;
 
     public MainFrame(){
         DatabaseManager.initializeDatabase();
@@ -29,8 +30,9 @@ public class MainFrame extends JFrame {
 
         mainContainer.add(new LoginPanel(this),"LOGIN");
         mainContainer.add(new MainMenuPanel(this),"MENU");
-        mainContainer.add(new HighScoresPanel(this),"HIGH_SCORES");
         mainContainer.add(new HowToPlayPanel(this),"HOW_TO_PLAY");
+        highScoresPanel = new HighScoresPanel(this);
+        mainContainer.add(highScoresPanel, "HIGH_SCORES");
         gamePanel = new GamePanel(this);
         mainContainer.add(gamePanel, "GAME");
         settingsPanel = new SettingsPanel(this);
@@ -46,26 +48,11 @@ public class MainFrame extends JFrame {
         if (settingsPanel != null) {
             settingsPanel.loadSettingsFromDB();
         }
-
         if(pageName.equals("HIGH_SCORES")){
-
-            mainContainer.remove(2);
-
-            mainContainer.add(new HighScoresPanel(this),"HIGH_SCORES");
-
-            revalidate();
-            repaint();
+            highScoresPanel.refreshTable();
         }
-        if(pageName.equals("STORE")){
-
-            mainContainer.remove(storePanel);
-
-            storePanel = new StorePanel(this);
-
-            mainContainer.add(storePanel,"STORE");
-
-            revalidate();
-            repaint();
+        if (pageName.equals("STORE")) {
+            storePanel.refresh();
         }
         cardLayout.show(mainContainer,pageName);
 

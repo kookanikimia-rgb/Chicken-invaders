@@ -12,44 +12,8 @@ public class StorePanel extends JPanel {
     private MainFrame frame;
 
     public StorePanel(MainFrame frame){
-
         this.frame = frame;
-
-        setLayout(new BorderLayout());
-        setBackground(new Color(20,40,60));
-
-        JLabel title = new JLabel("STORE",SwingConstants.CENTER);
-        title.setFont(new Font("Arial",Font.BOLD,34));
-        title.setForeground(Color.WHITE);
-
-        add(title,BorderLayout.NORTH);
-
-        JPanel center = new JPanel();
-        center.setLayout(new GridLayout(4,1,10,10));
-        center.setBackground(new Color(20,40,60));
-
-        center.add(createPlanePanel("Default"));
-        center.add(createPlanePanel("Fast"));
-        center.add(createPlanePanel("Heavy"));
-        center.add(createPlanePanel("Sniper"));
-
-        add(center,BorderLayout.CENTER);
-
-        JButton backBtn = new JButton("Back To Menu");
-        backBtn.setPreferredSize(new Dimension(200,40));
-        backBtn.setFont(new Font("Monospaced", Font.BOLD, 20));
-        backBtn.setBackground(new Color(40, 70, 100));
-        backBtn.setForeground(Color.WHITE);
-        backBtn.setFocusPainted(false);
-        backBtn.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 200), 2));
-
-        backBtn.addActionListener(e->frame.showPage("MENU"));
-
-        JPanel south = new JPanel();
-        south.setBackground(new Color(20,40,60));
-        south.add(backBtn);
-
-        add(south,BorderLayout.SOUTH);
+        refresh();
     }
 
     private JPanel createPlanePanel(String name){
@@ -266,5 +230,48 @@ public class StorePanel extends JPanel {
                                 Color.GRAY,5));
         }
         return panel;
+    }
+    public void refresh() {
+
+        removeAll();
+
+        setLayout(new BorderLayout());
+        setBackground(new Color(20,40,60));
+
+        JLabel title = new JLabel("STORE",SwingConstants.CENTER);
+        title.setFont(new Font("Arial",Font.BOLD,34));
+        title.setForeground(Color.WHITE);
+
+        add(title,BorderLayout.NORTH);
+
+        JPanel center = new JPanel();
+        center.setLayout(new GridLayout(4,1,10,10));
+        center.setBackground(new Color(20,40,60));
+
+        center.add(createPlanePanel("Default"));
+        center.add(createPlanePanel("Fast"));
+        center.add(createPlanePanel("Heavy"));
+        center.add(createPlanePanel("Sniper"));
+
+        add(center,BorderLayout.CENTER);
+
+        JButton backBtn = new JButton("Back To Menu");
+        backBtn.setPreferredSize(new Dimension(200,40));
+        backBtn.setFont(new Font("Monospaced", Font.BOLD, 20));
+        backBtn.setBackground(new Color(40, 70, 100));
+        backBtn.setForeground(Color.WHITE);
+        backBtn.setFocusPainted(false);
+        backBtn.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 200), 2));
+
+        backBtn.addActionListener(e->frame.showPage("MENU"));
+
+        JPanel south = new JPanel();
+        south.setBackground(new Color(20,40,60));
+        south.add(backBtn);
+
+        add(south,BorderLayout.SOUTH);
+
+        revalidate();
+        repaint();
     }
 }

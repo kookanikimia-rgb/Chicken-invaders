@@ -11,6 +11,9 @@ import java.sql.ResultSet;
 
 public class HighScoresPanel extends JPanel {
 
+    private JTable table;
+    private DefaultTableModel model;
+
     public HighScoresPanel(MainFrame frame){
 
         setLayout(new BorderLayout());
@@ -30,16 +33,14 @@ public class HighScoresPanel extends JPanel {
                 "Level"
         };
 
-        DefaultTableModel model =
-                new DefaultTableModel(columns,0){
+        model = new DefaultTableModel(columns,0){
+            @Override
+            public boolean isCellEditable(int row,int column){
+                return false;
+            }
+        };
 
-                    @Override
-                    public boolean isCellEditable(int row,int column){
-                        return false;
-                    }
-                };
-
-        JTable table = new JTable(model);
+        table = new JTable(model);
 
         table.setRowHeight(40);
         table.setFont(new Font("Arial",Font.BOLD,16));
@@ -52,32 +53,6 @@ public class HighScoresPanel extends JPanel {
         header.setForeground(Color.WHITE);
         header.setFont(new Font("Arial",Font.BOLD,18));
         header.setBorder(BorderFactory.createLineBorder(new Color(55, 80, 110)));
-
-        try{
-
-            ResultSet rs = DatabaseManager.getHighScores();
-
-            int rank = 1;
-
-            while(rs.next()){
-
-                String medal;
-
-                    medal=String.valueOf(rank);
-
-                model.addRow(new Object[]{
-                        medal,
-                        rs.getString("username"),
-                        rs.getInt("bestScore"),
-                        rs.getInt("current_level")
-                });
-
-                rank++;
-            }
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
 
         table.setDefaultRenderer(Object.class,new DefaultTableCellRenderer(){
 
@@ -146,5 +121,33 @@ public class HighScoresPanel extends JPanel {
         south.add(backBtn);
 
         add(south,BorderLayout.SOUTH);
+        refreshTable();
+    }
+
+    public void refreshTable() {
+
+        model.setRowCount(0);
+
+        try {
+
+            ResultSet rs = DatabaseManager.getHighScores();
+
+            int rank = 1;
+
+            while (rs.next()) {
+
+                model.addRow(new Object[]{
+                        rank,
+                        rs.getString("username"),
+                        rs.getInt("bestScore"),
+                        rs.getInt("current_level")
+                });
+
+                rank++;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -16,7 +16,7 @@ public class ShooterEnemy extends Enemy {
         pointValue = 25;
 
         random = new Random();
-        lastShotTime = System.currentTimeMillis();
+        lastShotTime = 0;
 
         try {
             this.image = new ImageIcon(getClass().getResource("/Assets/images/chicken/shooter_chicken.png")).getImage();
