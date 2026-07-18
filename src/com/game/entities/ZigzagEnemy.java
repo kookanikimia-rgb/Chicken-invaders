@@ -33,8 +33,6 @@ public class ZigzagEnemy extends Enemy{
         }else{
 
             timer++;
-
-            //x += direction * speed;
             x += Math.sin(timer * 0.2) * 2;
         }
     }

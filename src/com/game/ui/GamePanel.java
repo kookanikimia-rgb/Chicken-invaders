@@ -218,12 +218,16 @@ public class GamePanel extends JPanel implements KeyListener {
 
                     powerUps.add(new PowerUp(e.x, e.y, type));
                 }
-                // ۱. کم کردن از شمارنده خانه
-                enemyGrid.cellHits[e.row][e.col]--;
 
-                // ۲. اگر هنوز حق جایگزینی هست، مرغ جدید بساز
-                if (enemyGrid.cellHits[e.row][e.col] > 0) {
-                    enemyGrid.spawnReplacementEnemy(e.row, e.col);
+                if (!e.isReplacement) {
+
+                    // ۱. کم کردن از شمارنده خانه
+                    enemyGrid.cellHits[e.row][e.col]--;
+
+                    // ۲. اگر هنوز حق جایگزینی هست، مرغ جدید بساز
+                    if (enemyGrid.cellHits[e.row][e.col] > 0) {
+                        enemyGrid.spawnReplacementEnemy(e.row, e.col);
+                    }
                 }
 
                 // ۳. حذف مرغ مرده از لیست

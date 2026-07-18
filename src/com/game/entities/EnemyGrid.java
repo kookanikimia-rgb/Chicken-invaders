@@ -63,7 +63,21 @@ public class EnemyGrid {
         }
     }
 
+    private boolean hasReplacement(int row, int col) {
+
+        for (Enemy e : gridEnemies) {
+            if (e.isReplacement && e.row == row && e.col == col) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void spawnReplacementEnemy(int row, int col) {
+
+        if (hasReplacement(row, col))
+            return;
+
         // استفاده از متد قبلی برای ساخت مرغ مناسب سطح
         Enemy replacement = createEnemyForLevel(this.currentLevel, row, col);
 
@@ -77,7 +91,7 @@ public class EnemyGrid {
             replacement.x = 0;
             // گوشه چپ
         } else {
-            replacement.x = 600;
+            replacement.x = 580;
             // گوشه راست (عرض صفحه)
         }
         replacement.y = 0; // از بالای صفحه شروع می‌کند
@@ -150,25 +164,28 @@ public class EnemyGrid {
             direction *= -1;
             gridY += dropStep;
             for(Enemy e : gridEnemies){
-
-                if(!e.isReplacement){
+                if (e.isReplacement) {
+                    e.targetY += dropStep;
+                } else {
                     e.y += dropStep;
                 }
             }
         }
         // حرکت
-        for(Enemy e : gridEnemies){
-            if(e.isReplacement){
+        for (Enemy e : gridEnemies) {
 
-                e.targetX=gridX+e.col*40;
-                e.targetY=gridY+e.row*40;
+            if (e.isReplacement) {
 
-                e.update(direction,gridSpeed);
+                // مقصد مرغ جایگزین همیشه جای سلول باشد
+                e.targetX = gridX + e.col * 40;
+                e.targetY = gridY + e.row * 40;
 
-            }else{
+                e.update(direction, gridSpeed);
 
-                e.x+=direction* gridSpeed;
-                e.update(direction,gridSpeed);
+            } else {
+
+                e.x += direction * gridSpeed;
+                e.update(direction, gridSpeed);
 
             }
         }

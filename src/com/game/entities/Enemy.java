@@ -20,8 +20,6 @@ public abstract class Enemy {
 
     public Image image;
 
-
-
     public int eggInterval;
     private long lastEggDropTime;
 
@@ -33,7 +31,7 @@ public abstract class Enemy {
         this.hp = hp;
 
         this.eggInterval = levelEggInterval;
-        this.lastEggDropTime = System.currentTimeMillis();
+        lastEggDropTime = System.currentTimeMillis();
     }
 
     public abstract void update(int direction, float gridSpeed);
@@ -47,7 +45,6 @@ public abstract class Enemy {
     protected void moveToCell() {
 
         float speed = getReplacementSpeed();
-
         // محور X
         if (Math.abs(targetX - x) <= speed) {
             x = targetX;
@@ -73,7 +70,11 @@ public abstract class Enemy {
                  x = 580 - width;
          }
 
-        if (x == targetX && y == targetY) {
+        if (Math.abs(x - targetX) < 0.1f &&
+                Math.abs(y - targetY) < 0.1f) {
+
+            x = targetX;
+            y = targetY;
             isReplacement = false;
         }
     }
