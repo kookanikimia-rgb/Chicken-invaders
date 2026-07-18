@@ -106,38 +106,49 @@ public class EnemyGrid {
         String type = config.enemyType;
         Random rand = new Random();
 
+        int normalHp;
+        int fastHp;
+
+        if (level <= 3) {
+            normalHp = 2;
+            fastHp = 1;
+        } else {
+            normalHp = 3;
+            fastHp = 2;
+        }
+
         if (type.equals("Normal")) {
 
-            return new NormalEnemy(config.initialCellHits,config.eggInterval); // فقط Normal
+            return new NormalEnemy(normalHp,config.eggInterval); // فقط Normal
 
         } else if (type.equals("Normal+Fast")) {
 
-            return (rand.nextInt(2) == 0) ? new FastEnemy(config.initialCellHits,config.eggInterval) : new NormalEnemy(config.initialCellHits,config.eggInterval);
+            return (rand.nextInt(2) == 0) ? new FastEnemy(fastHp,config.eggInterval) : new NormalEnemy(normalHp,config.eggInterval);
 
         } else if (type.equals("Normal+Zigzag")) {
 
-            return (rand.nextInt(2) == 0) ? new ZigzagEnemy(config.initialCellHits,config.eggInterval) : new NormalEnemy(config.initialCellHits,config.eggInterval);
+            return (rand.nextInt(2) == 0) ? new ZigzagEnemy(normalHp,config.eggInterval) : new NormalEnemy(normalHp,config.eggInterval);
 
         } else if (type.equals("Shooter+Fast")) {
 
-            return (rand.nextInt(2) == 0) ? new ShooterEnemy(config.initialCellHits,config.eggInterval) : new FastEnemy(config.initialCellHits,config.eggInterval);
+            return (rand.nextInt(2) == 0) ? new ShooterEnemy(normalHp,config.eggInterval) : new FastEnemy(fastHp,config.eggInterval);
 
         }else if(type.equals("Zigzag+Shooter")){
 
-            return (rand.nextInt(2) == 0) ? new ZigzagEnemy(config.initialCellHits,config.eggInterval) : new ShooterEnemy(config.initialCellHits,config.eggInterval);
+            return (rand.nextInt(2) == 0) ? new ZigzagEnemy(normalHp,config.eggInterval) : new ShooterEnemy(normalHp,config.eggInterval);
 
         }else if (type.equals("All")) {
 
             int allTypes = rand.nextInt(4);
             switch (allTypes) {
-                case 0: return new NormalEnemy(config.initialCellHits,config.eggInterval);
-                case 1: return new FastEnemy(config.initialCellHits,config.eggInterval);
-                case 2: return new ZigzagEnemy(config.initialCellHits,config.eggInterval);
-                default: return new ShooterEnemy(config.initialCellHits,config.eggInterval);
+                case 0: return new NormalEnemy(normalHp,config.eggInterval);
+                case 1: return new FastEnemy(fastHp,config.eggInterval);
+                case 2: return new ZigzagEnemy(normalHp,config.eggInterval);
+                default: return new ShooterEnemy(normalHp,config.eggInterval);
             }
 
         }
-        return new NormalEnemy(config.initialCellHits,config.eggInterval);
+        return new NormalEnemy(normalHp,config.eggInterval);
     }
 
     public void update(int screenWidth){
