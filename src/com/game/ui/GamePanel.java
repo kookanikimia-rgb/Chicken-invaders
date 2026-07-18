@@ -113,7 +113,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private void update() {
 
-        if (isPaused){
+        if (isPaused) {
             repaint();
             return;
         }
@@ -187,7 +187,7 @@ public class GamePanel extends JPanel implements KeyListener {
                 if (b.getBounds().intersects(boss.getBounds())) {
 
                     int damage = 1;
-                    if(player.planeInfo.doubleBossDamage){
+                    if (player.planeInfo.doubleBossDamage) {
                         damage = 2;
                     }
 
@@ -198,21 +198,22 @@ public class GamePanel extends JPanel implements KeyListener {
         }
 
         //برخورد پلیر با دشمن
-        for (Enemy e : enemyGrid.gridEnemies)
-            if (player.getBounds().intersects(e.getBounds())) {
-                if (gameTime() > shieldEndTime)
-                    player.takeDamage();
-                e.hp = 0;
-                if (player.hp <= 0)
-                    gameOver();
-            }
+        if (enemyGrid != null) {
+            for (Enemy e : enemyGrid.gridEnemies)
+                if (player.getBounds().intersects(e.getBounds())) {
+                    if (gameTime() > shieldEndTime)
+                        player.takeDamage();
+                    e.hp = 0;
+                    if (player.hp <= 0)
+                        gameOver();
+                }
 
         for (int i = 0; i < enemyGrid.gridEnemies.size(); i++) {
             Enemy e = enemyGrid.gridEnemies.get(i);
             if (e.isDead()) {
                 SoundManager.playExplosion();
-                int centerX = (int)e.x + (e.width / 2); // پیدا کردن مرکز افقی مرغ
-                int centerY = (int)e.y + (e.height / 2); // پیدا کردن مرکز عمودی مرغ
+                int centerX = (int) e.x + (e.width / 2); // پیدا کردن مرکز افقی مرغ
+                int centerY = (int) e.y + (e.height / 2); // پیدا کردن مرکز عمودی مرغ
                 explosions.add(new Explosion(centerX, centerY, 60));
                 addScore(e.pointValue);
 
@@ -240,9 +241,13 @@ public class GamePanel extends JPanel implements KeyListener {
                 i--;
             }
         }
+        }
         if (currentLevel == 4 || currentLevel == 8) {
             // اگر لول ۴ یا ۸ است، غول را مدیریت کن
-            if (boss == null) boss = new Boss(currentLevel);
+            if (boss == null) {
+                enemyGrid = null;
+                boss = new Boss(currentLevel);
+            }
 
             if (gameTime() > freezeEndTime){
             boss.update(getWidth());
@@ -379,7 +384,7 @@ public class GamePanel extends JPanel implements KeyListener {
                 enemyBullets.remove(i--);
         }
 
-        if (enemyGrid.gridEnemies.isEmpty()) {
+        if (enemyGrid != null && enemyGrid.gridEnemies.isEmpty()) {
             if (currentLevel < 8) {
                 currentLevel++;
                 enemyGrid = new EnemyGrid(currentLevel);
