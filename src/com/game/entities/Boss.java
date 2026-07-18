@@ -82,13 +82,13 @@ public class Boss {
         }
     }
 
-    public List<Egg> attack(){
+    public List<Egg> attack(long gameTime){
         List<Egg> newEggs = new ArrayList<>();
         long currentTime = System.currentTimeMillis();
 
         int interval = (level == 4) ? 1500 : 1000;
 
-        if(currentTime-lastAttackTime >= interval) {
+        if(gameTime-lastAttackTime >= interval) {
             lastAttackTime = currentTime;
             if (level == 4) {
                 // شلیک در ۴ جهت: بالا، پایین، چپ، راست

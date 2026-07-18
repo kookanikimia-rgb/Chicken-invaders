@@ -214,7 +214,7 @@ public class GamePanel extends JPanel implements KeyListener {
                 SoundManager.playExplosion();
                 int centerX = (int) e.x + (e.width / 2); // پیدا کردن مرکز افقی مرغ
                 int centerY = (int) e.y + (e.height / 2); // پیدا کردن مرکز عمودی مرغ
-                explosions.add(new Explosion(centerX, centerY, 60));
+                explosions.add(new Explosion(centerX, centerY, 60,gameTime()));
                 addScore(e.pointValue);
 
                 Random rand = new Random();
@@ -253,7 +253,7 @@ public class GamePanel extends JPanel implements KeyListener {
             boss.update(getWidth());
 
             // تخم‌های غول را به لیست تخم‌های بازی اضافه کن
-            List<Egg> bossEggs = boss.attack();
+            List<Egg> bossEggs = boss.attack(gameTime());
             eggs.addAll(bossEggs);}
 
             if (boss.isDead()) {
@@ -277,7 +277,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
             for (Enemy e : enemyGrid.gridEnemies) {
                 if (e.row == 4) {
-                    Egg newEgg = e.dropEgg();
+                    Egg newEgg = e.dropEgg(gameTime());
                     if (newEgg != null) {
                         eggs.add(newEgg);
                     }
@@ -285,7 +285,7 @@ public class GamePanel extends JPanel implements KeyListener {
                 if (e instanceof ShooterEnemy) {
 
                     if (gameTime() > freezeEndTime) {
-                        EnemyBullet b = ((ShooterEnemy) e).shoot(player.x);
+                        EnemyBullet b = ((ShooterEnemy) e).shoot(player.x,gameTime());
 
                         if (b != null)
                             enemyBullets.add(b);
@@ -399,7 +399,7 @@ public class GamePanel extends JPanel implements KeyListener {
             // افکت
             int centerX = (int)(boss.x + boss.width / 2);
             int centerY = (int)(boss.y + boss.height / 2);
-            explosions.add(new Explosion(centerX, centerY, 100));
+            explosions.add(new Explosion(centerX, centerY, 100,gameTime()));
 
             if (currentLevel == 8) {
                 isWin = true;
@@ -517,10 +517,10 @@ public class GamePanel extends JPanel implements KeyListener {
 
         for (int i = explosions.size() - 1; i >= 0; i--) {
             Explosion exp = explosions.get(i);
-            if (exp.isFinished()) {
+            if (exp.isFinished(gameTime())) {
                 explosions.remove(i); // اگر زمانش تمام شد، از لیست پاک کن
             } else {
-                exp.draw(g); // در غیر این صورت رسمش کن
+                exp.draw(g,gameTime()); // در غیر این صورت رسمش کن
             }
         }
 

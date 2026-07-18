@@ -11,11 +11,11 @@ public class Explosion {
     private final long duration = 300; // مدت زمان انفجار به میلی ثانیه
     private Image image;
 
-    public Explosion(int x, int y, int maxSize) {
+    public Explosion(int x, int y, int maxSize,long gameTime) {
         this.x = x;
         this.y = y;
         this.maxSize = maxSize;
-        this.startTime = System.currentTimeMillis();
+        this.startTime = gameTime;
 
         try {
             this.image = new ImageIcon(getClass().getResource("/Assets/images/explosion.png")).getImage();
@@ -24,11 +24,11 @@ public class Explosion {
         }
     }
 
-    public boolean isFinished() {
-        return System.currentTimeMillis() - startTime > duration;
+    public boolean isFinished(long gameTime) {
+        return gameTime - startTime > duration;
     }
 
-    public void draw(Graphics g) {
+    public void draw(Graphics g,long gameTime) {
         long passedTime = System.currentTimeMillis() - startTime;
         double progress = passedTime / (double) duration;
 

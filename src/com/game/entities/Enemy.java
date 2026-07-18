@@ -31,7 +31,7 @@ public abstract class Enemy {
         this.hp = hp;
 
         this.eggInterval = levelEggInterval;
-        lastEggDropTime = System.currentTimeMillis();
+        lastEggDropTime = 0;
     }
 
     public abstract void update(int direction, float gridSpeed);
@@ -83,10 +83,13 @@ public abstract class Enemy {
         return 2f;
     }
 
-    public Egg dropEgg() {
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastEggDropTime >= this.eggInterval) { // استفاده از متغیر به جای عدد ثابت
-            lastEggDropTime = currentTime;
+    public Egg dropEgg(long gameTime) {
+
+        if (lastEggDropTime == 0)
+            lastEggDropTime = gameTime;
+
+        if (gameTime - lastEggDropTime >= this.eggInterval) {
+            lastEggDropTime = gameTime;
             return new Egg((int)this.x + this.width/2, (int)this.y + this.height);
         }
         return null;

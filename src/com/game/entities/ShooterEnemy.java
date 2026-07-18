@@ -32,16 +32,15 @@ public class ShooterEnemy extends Enemy {
             moveToCell();
         }
     }
-    public EnemyBullet shoot(float playerX) {
+    public EnemyBullet shoot(float playerX, long gameTime) {
 
-        long currentTime = System.currentTimeMillis();
-
+        long currentTime = gameTime;
         if (currentTime - lastShotTime >= SHOOT_INTERVAL) {
+
+            lastShotTime = currentTime;
 
             // احتمال ۳۰ درصد برای شلیک
             if (random.nextInt(100) < 30) {
-
-                lastShotTime = currentTime;
 
                 return new EnemyBullet(
                         (int) x + width / 2,
