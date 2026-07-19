@@ -54,9 +54,11 @@ public class GamePanel extends JPanel implements KeyListener {
     private Image freezeIcon;
     private Image rapidFireIcon;
 
-    private long pausedDuration = 0;
-    private long pauseStartTime = 0;
+    private long pausedDuration;
+    private long pauseStartTime;
 
+    private long playerDeathTime;
+    private boolean playerExplosionPlayed;
 
     public GamePanel(MainFrame frame){
 
@@ -76,6 +78,12 @@ public class GamePanel extends JPanel implements KeyListener {
         this.explosions = new ArrayList<>();
         this.enemyGrid = new EnemyGrid(1);
         this.bossDeathTime = 0;
+
+        this.pausedDuration = 0;
+        this.pauseStartTime = 0;
+
+        this.playerDeathTime = 0;
+        this.playerExplosionPlayed = false;
 
 
         String planeName = DatabaseManager.getSelectedPlane(UserSession.getUserName());
@@ -118,7 +126,33 @@ public class GamePanel extends JPanel implements KeyListener {
         }
 
         //حرکت پلیر
-        if (isGameOver) return;
+        if (isGameOver) {
+
+            boolean finished = true;
+
+            for (Explosion e : explosions) {
+                if (!e.isFinished(gameTime())) {
+                    finished = false;
+                    break;
+                }
+            }
+
+            if (finished) {
+                gameTimer.stop();
+            }
+
+            return;
+        }
+        if (playerDeathTime != 0) {
+
+            if (gameTime() - playerDeathTime >= 600) {
+                gameOver();
+                return;
+            }
+
+            repaint();
+            return;
+        }
 
         if (leftPressed)
             player.moveLeft();
@@ -200,11 +234,20 @@ public class GamePanel extends JPanel implements KeyListener {
         if (enemyGrid != null) {
             for (Enemy e : enemyGrid.gridEnemies)
                 if (player.getBounds().intersects(e.getBounds())) {
-                    if (gameTime() > shieldEndTime)
+                    if (gameTime() > shieldEndTime && playerDeathTime == 0)
                         player.takeDamage();
                     e.hp = 0;
-                    if (player.hp <= 0)
-                        gameOver();
+                    if (player.hp <= 0 && playerDeathTime == 0) {
+
+                        playerDeathTime = gameTime();
+
+                        SoundManager.playExplosion();
+
+                        int centerX = player.x + player.width / 2;
+                        int centerY = player.y + player.height / 2;
+
+                        explosions.add(new Explosion(centerX, centerY, 80, gameTime(),Explosion.PLAYER));
+                    }
                 }
 
         for (int i = 0; i < enemyGrid.gridEnemies.size(); i++) {
@@ -213,7 +256,7 @@ public class GamePanel extends JPanel implements KeyListener {
                 SoundManager.playExplosion();
                 int centerX = (int) e.x + (e.width / 2); // پیدا کردن مرکز افقی مرغ
                 int centerY = (int) e.y + (e.height / 2); // پیدا کردن مرکز عمودی مرغ
-                explosions.add(new Explosion(centerX, centerY, 60,gameTime()));
+                explosions.add(new Explosion(centerX, centerY, 60,gameTime(),Explosion.ENEMY));
                 addScore(e.pointValue);
 
                 Random rand = new Random();
@@ -248,30 +291,22 @@ public class GamePanel extends JPanel implements KeyListener {
                 boss = new Boss(currentLevel);
             }
 
-            if (gameTime() > freezeEndTime){
-            boss.update(getWidth());
+            if (gameTime() > freezeEndTime && !boss.isDead()){
+                boss.update(getWidth());
 
-            // تخم‌های غول را به لیست تخم‌های بازی اضافه کن
-            List<Egg> bossEggs = boss.attack(gameTime());
-            eggs.addAll(bossEggs);}
+                // تخم‌های غول را به لیست تخم‌های بازی اضافه کن
+                List<Egg> bossEggs = boss.attack(gameTime());
+                eggs.addAll(bossEggs);}
 
-            if (boss.isDead()) {
-                addScore((currentLevel == 4) ? 500 : 1000);
-                if (currentLevel == 8) {
-                    isWin = true;
-                } else {
-                    currentLevel++; // رفتن به لول ۵
-                    boss = null;
-                    enemyGrid = new EnemyGrid(currentLevel); // ساخت شبکه لول ۵
-                }
-            }
-        } else {
+        }
+        else {
 
             if (gameTime() > freezeEndTime)
                 enemyGrid.update(getWidth());
 
             if (enemyGrid.isBottomReached()) {
                 gameOver();
+                return;
             }
 
             for (Enemy e : enemyGrid.gridEnemies) {
@@ -350,12 +385,21 @@ public class GamePanel extends JPanel implements KeyListener {
 
             if (egg.getBounds().intersects(player.getBounds())) {
 
-                if (gameTime() > shieldEndTime)
+                if (gameTime() > shieldEndTime && playerDeathTime == 0)
                     player.takeDamage();
 
                 eggs.remove(i--);
-                if (player.hp <= 0)
-                    gameOver();
+                if (player.hp <= 0 && playerDeathTime == 0) {
+
+                    playerDeathTime = gameTime();
+
+                    SoundManager.playExplosion();
+
+                    int centerX = player.x + player.width / 2;
+                    int centerY = player.y + player.height / 2;
+
+                    explosions.add(new Explosion(centerX, centerY, 80, gameTime(),Explosion.PLAYER));
+                }
             }
         }
 
@@ -368,14 +412,15 @@ public class GamePanel extends JPanel implements KeyListener {
 
             if (b.getBounds().intersects(player.getBounds())) {
 
-                if (gameTime() > shieldEndTime)
+                if (gameTime() > shieldEndTime && playerDeathTime == 0)
                     player.takeDamage();
 
                 enemyBullets.remove(i--);
 
-                if (player.hp <= 0)
+                if (player.hp <= 0) {
                     gameOver();
-
+                    return;
+                }
                 continue;
             }
 
@@ -399,16 +444,29 @@ public class GamePanel extends JPanel implements KeyListener {
         }
         if (boss != null && boss.isDead()) {
             if (bossDeathTime == 0) {
+
                 bossDeathTime = gameTime();
+
                 SoundManager.playExplosion();
 
                 // افکت
                 int centerX = (int) (boss.x + boss.width / 2);
                 int centerY = (int) (boss.y + boss.height / 2);
-                explosions.add(new Explosion(centerX, centerY, 100, gameTime()));
+
+                explosions.add(new Explosion(centerX, centerY, 100, gameTime(),Explosion.ENEMY));
+
+                return;
             }
+
+            if (gameTime() - bossDeathTime < 800)
+                return;
+
+            addScore(currentLevel == 4 ? 500 : 1000);
+
             if (currentLevel == 8) {
+
                 isWin = true;
+
                 SoundManager.playWin();
 
                 DatabaseManager.saveGame(
@@ -432,9 +490,23 @@ public class GamePanel extends JPanel implements KeyListener {
                 enemyBullets.clear();
                 explosions.clear();
                 powerUps.clear();
-            gameTimer.stop();
-            return;
-        }
+                gameTimer.stop();
+
+            }else {
+                currentLevel++;
+
+                bullets.clear();
+                eggs.clear();
+                enemyBullets.clear();
+                explosions.clear();
+                powerUps.clear();
+
+                boss = null;
+                bossDeathTime = 0;
+
+                enemyGrid = new EnemyGrid(currentLevel);
+            }
+
             if (bossDeathTime != 0 && gameTime() - bossDeathTime > 500) {
                 currentLevel++;
 
@@ -449,10 +521,16 @@ public class GamePanel extends JPanel implements KeyListener {
                 enemyGrid = new EnemyGrid(currentLevel);
             }
         }
+        if (playerDeathTime != 0 &&
+                gameTime() - playerDeathTime > 600) {
+
+            playerDeathTime = 0;
+            gameOver();
+        }
     }
 
     @Override
-    protected void paintComponent(Graphics g){
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
 
@@ -461,12 +539,12 @@ public class GamePanel extends JPanel implements KeyListener {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
 
-        g2d.setColor(new Color(0,0,0,150));
-        g2d.fillRoundRect(8,8,170,180,20,20);
+        g2d.setColor(new Color(0, 0, 0, 150));
+        g2d.fillRoundRect(8, 8, 170, 180, 20, 20);
 
-        g2d.setColor(new Color(80,180,255));
+        g2d.setColor(new Color(80, 180, 255));
         g2d.setStroke(new BasicStroke(2));
-        g2d.drawRoundRect(8,8,170,180,20,20);
+        g2d.drawRoundRect(8, 8, 170, 180, 20, 20);
 
         g.setFont(new Font("Arial", Font.BOLD, 15));
 
@@ -478,11 +556,11 @@ public class GamePanel extends JPanel implements KeyListener {
         g.drawString("Player: " + currentUserName, x, y);
 
         y += 25;
-        g.setColor(new Color(100,100,200));
+        g.setColor(new Color(100, 100, 200));
         g.drawString("Score: " + score, x, y);
 
         y += 25;
-        g.setColor(new Color(190,40,130));
+        g.setColor(new Color(190, 40, 130));
         g.drawString("Level: " + currentLevel, x, y);
 
         y += 25;
@@ -490,12 +568,12 @@ public class GamePanel extends JPanel implements KeyListener {
         g.drawString("Lives: " + player.hp, x, y);
 
         y += 25;
-        g.setColor(new Color(189,46,80));
-        g.drawString("Bullets: " + bulletCount, x,y);
+        g.setColor(new Color(189, 46, 80));
+        g.drawString("Bullets: " + bulletCount, x, y);
 
 
-        if(gameTime() < rapidFireEndTime)
-            g.drawImage(rapidFireIcon,20,145,32,32,null);
+        if (gameTime() < rapidFireEndTime)
+            g.drawImage(rapidFireIcon, 20, 145, 32, 32, null);
 
         if (gameTime() < shieldEndTime)
             g.drawImage(shieldIcon, 52, 145, 32, 32, null);
@@ -503,14 +581,17 @@ public class GamePanel extends JPanel implements KeyListener {
         if (gameTime() < freezeEndTime)
             g.drawImage(freezeIcon, 84, 145, 32, 32, null);
 
+        if (playerDeathTime == 0) {
 
-        if (player.image != null) {
-            g2d.drawImage(player.image, player.x, player.y, player.width, player.height, null);
-        } else {
-            g2d.setColor(Color.CYAN);
-            g2d.fillRect(player.x, player.y, player.width, player.height);
+            if (player.image != null) {
+                g2d.drawImage(player.image, player.x, player.y, player.width, player.height, null);
+            } else {
+                g2d.setColor(Color.CYAN);
+                g2d.fillRect(player.x, player.y, player.width, player.height);
+            }
         }
-        if(gameTime() < shieldEndTime){
+
+        if(playerDeathTime == 0 && gameTime() < shieldEndTime){
 
             g2d.setColor(new Color(250,20,100));
 
@@ -526,7 +607,7 @@ public class GamePanel extends JPanel implements KeyListener {
             b.draw(g);
         }
         if (currentLevel == 4 || currentLevel == 8) {
-            if (boss != null) boss.draw(g);}
+            if (boss != null && bossDeathTime == 0) boss.draw(g);}
         else{
             enemyGrid.draw(g);
         }
@@ -667,7 +748,7 @@ public class GamePanel extends JPanel implements KeyListener {
                     (getWidth() - g2d.getFontMetrics().stringWidth(subMsg)) / 2,
                     (getHeight() / 2) + 110);
         }
-}
+    }
 
     @Override
     public void keyPressed(KeyEvent e){
@@ -781,13 +862,39 @@ public class GamePanel extends JPanel implements KeyListener {
         isPaused = false;
         pausedDuration = 0;
         pauseStartTime = 0;
+        playerDeathTime = 0;
+        playerExplosionPlayed = false;
     }
 
     private void gameOver() {
 
+        if (isGameOver)
+            return;
+
+        if (playerDeathTime == 0) {
+
+            playerDeathTime = gameTime();
+
+            SoundManager.playExplosion();
+
+            int centerX = player.x + player.width / 2;
+            int centerY = player.y + player.height / 2;
+
+            explosions.add(new Explosion(centerX, centerY, 80, gameTime(),Explosion.PLAYER));
+
+            return;
+        }
+
+        explosions.add(new Explosion(
+                player.x + player.width / 2,
+                player.y + player.height / 2,
+                80,
+                gameTime()
+        ,Explosion.ENEMY));
+
         SoundManager.playGameOver();
 
-        isGameOver = true;
+        isGameOver = true ;
         gameTimer.stop();
 
         DatabaseManager.saveGame(
@@ -805,6 +912,7 @@ public class GamePanel extends JPanel implements KeyListener {
                 score,
                 currentLevel
         );
+        playerDeathTime = 0;
     }
 
     public void addScore(int points) {

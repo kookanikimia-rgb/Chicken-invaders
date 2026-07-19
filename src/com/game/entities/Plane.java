@@ -13,6 +13,7 @@ public class Plane {
     public Image image;
 
     public PlaneInfo planeInfo;
+    public boolean dead = false;
 
     public Plane(PlaneInfo planeInfo){
 
@@ -73,10 +74,15 @@ public class Plane {
 
     public void takeDamage(){
         hp--;
-        if (hp < 0)
+        if (hp < 0){
             hp = 0;
+            dead = true;
+        }
     }
 
+    public boolean isDead() {
+        return dead;
+    }
 
     public void keepInBounds(int screenWidth,int screenHeight) {
         if (x < 0) x = 0;

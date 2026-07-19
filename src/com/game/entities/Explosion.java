@@ -8,21 +8,31 @@ public class Explosion {
     private int x, y;
     private int maxSize;
     private long startTime;
-    private final long duration = 300; // مدت زمان انفجار به میلی ثانیه
-    private Image image;
+    private final long duration = 300;// مدت زمان انفجار به میلی ثانیه
 
-    public Explosion(int x, int y, int maxSize,long gameTime) {
+    private static Image image;
+    public static final int ENEMY = 0;
+    public static final int PLAYER = 1;
+
+    public Explosion(int x, int y, int maxSize, long gameTime, int type) {
+
         this.x = x;
         this.y = y;
         this.maxSize = maxSize;
         this.startTime = gameTime;
 
         try {
-            this.image = new ImageIcon(getClass().getResource("/Assets/images/explosion.png")).getImage();
+
+            if(type == PLAYER)
+                image = new ImageIcon(getClass().getResource("/Assets/images/airplan/Explosion.png")).getImage();
+            else
+                image = new ImageIcon(getClass().getResource("/Assets/images/explosion.png")).getImage();
+
         } catch (Exception e) {
-            System.out.println("Explosion image not found!");
+            e.printStackTrace();
         }
     }
+
 
     public boolean isFinished(long gameTime) {
         return gameTime - startTime > duration;
