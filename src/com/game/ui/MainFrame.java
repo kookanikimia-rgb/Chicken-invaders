@@ -1,7 +1,9 @@
 package com.game.ui;
 
 import com.game.audio.SettingsPanel;
+import com.game.audio.SoundManager;
 import com.game.database.DatabaseManager;
+import com.game.entities.UserSession;
 
 import javax.swing.*;
 import java.awt.*;
@@ -48,11 +50,24 @@ public class MainFrame extends JFrame {
         if (settingsPanel != null) {
             settingsPanel.loadSettingsFromDB();
         }
-        if(pageName.equals("HIGH_SCORES")){
-            highScoresPanel.refreshTable();
-        }
-        if (pageName.equals("STORE")) {
-            storePanel.refresh();
+        switch (pageName) {
+
+            case "MENU":
+                SoundManager.stopEffectSound();
+                SoundManager.startBackgroundMusic();
+                break;
+
+            case "GAME":
+                SoundManager.startBackgroundMusic();
+                break;
+
+            case "HIGH_SCORES":
+                highScoresPanel.refreshTable();
+                break;
+
+            case "STORE":
+                storePanel.refresh();
+                break;
         }
         cardLayout.show(mainContainer,pageName);
 

@@ -1,6 +1,8 @@
 package com.game.ui;
 
 import com.game.audio.SoundManager;
+import com.game.database.DatabaseManager;
+import com.game.entities.UserSession;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,8 +18,6 @@ public class MainMenuPanel extends JPanel {
         } catch (Exception e) {
             System.out.println("MainMenu background image not found, using default color.");
         }
-
-        SoundManager.startBackgroundMusic();
 
         setLayout(new GridBagLayout());
         setBackground(new Color(20, 40, 60));

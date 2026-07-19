@@ -11,6 +11,7 @@ import java.net.URL;
 public class SoundManager {
 
     private static Clip backgroundClip;
+    private static Clip effectClip;
 
     private static boolean isEnabled(String key) {
 
@@ -36,9 +37,9 @@ public class SoundManager {
             AudioInputStream audio =
                     AudioSystem.getAudioInputStream(url);
 
-            Clip clip = AudioSystem.getClip();
-            clip.open(audio);
-            clip.start();
+            effectClip = AudioSystem.getClip();
+            effectClip.open(audio);
+            effectClip.start();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,18 +52,26 @@ public class SoundManager {
         if (!isEnabled("bg_music"))
             return;
 
-        stopBackgroundMusic();
+        if (backgroundClip != null) {
+            if (!backgroundClip.isRunning()) {
+                backgroundClip.setFramePosition(0);
+                backgroundClip.loop(Clip.LOOP_CONTINUOUSLY);
+                backgroundClip.start();
+            }
+            return;
+        }
 
         try {
 
             URL url = SoundManager.class.getResource("/Assets/sounds/sound-effects/background.wav");
 
-            AudioInputStream audio =
-                    AudioSystem.getAudioInputStream(url);
+            AudioInputStream audio = AudioSystem.getAudioInputStream(url);
 
             backgroundClip = AudioSystem.getClip();
             backgroundClip.open(audio);
+            backgroundClip.setFramePosition(0);
             backgroundClip.loop(Clip.LOOP_CONTINUOUSLY);
+            backgroundClip.start();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -111,5 +120,13 @@ public class SoundManager {
             play("/Assets/sounds/sound-effects/win.wav");
 
     }
+    public static void stopEffectSound() {
 
+        if (effectClip != null) {
+            effectClip.stop();
+            effectClip.close();
+            effectClip = null;
+        }
+
+    }
 }

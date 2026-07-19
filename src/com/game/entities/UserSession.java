@@ -10,7 +10,4 @@ public class UserSession {
 
     public static String getUserName(){return currentUsername;}
 
-    public static void clearSession() {
-        currentUsername = null;
-    }
 }

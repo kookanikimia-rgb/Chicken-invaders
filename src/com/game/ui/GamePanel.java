@@ -97,7 +97,6 @@ public class GamePanel extends JPanel implements KeyListener {
 
         this.addKeyListener(this);
 
-        SoundManager.startBackgroundMusic();
 
         this.shieldIcon = new ImageIcon(getClass().getResource("/Assets/images/powerup1/sheild.png")).getImage();
         this.rapidFireIcon = new ImageIcon(getClass().getResource("/Assets/images/powerup1/fast_shot.png")).getImage();
