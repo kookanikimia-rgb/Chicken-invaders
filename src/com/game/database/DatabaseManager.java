@@ -1,8 +1,11 @@
 package com.game.database;
 
+import com.game.entities.HighScoreEntry;
 import com.game.entities.PlaneInfo;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseManager {
     private static final String URL = "jdbc:sqlite:game.db";
@@ -205,32 +208,44 @@ public class DatabaseManager {
         }
     }
 
-    public static ResultSet getHighScores() {
+    public static List<HighScoreEntry> getHighScores() {
 
         String sql = """
-        SELECT u.username,
-               MAX(g.score) AS bestScore,
-               u.current_level
+        SELECT g.username,
+               g.score,
+               g.level
         FROM game_history g
-        JOIN users u ON g.username = u.username
-        GROUP BY u.username
-        ORDER BY bestScore DESC
+        WHERE g.id = (
+            SELECT g2.id
+            FROM game_history g2
+            WHERE g2.username = g.username
+            ORDER BY g2.score DESC,
+                     g2.played_at DESC
+            LIMIT 1
+        )
+        ORDER BY g.score DESC
         """;
 
-        try{
+        List<HighScoreEntry> scores = new ArrayList<>();
 
-            Connection conn = DriverManager.getConnection(URL);
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
 
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+            while (rs.next()) {
 
-            return pstmt.executeQuery();
+                scores.add(new HighScoreEntry(
+                        rs.getString("username"),
+                        rs.getInt("score"),
+                        rs.getInt("level")
+                ));
+            }
 
-        }catch(SQLException e){
-
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return scores;
     }
 
     public static String getSelectedPlane(String username) {

@@ -1,13 +1,13 @@
 package com.game.ui;
 
 import com.game.database.DatabaseManager;
+import com.game.entities.HighScoreEntry;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.sql.ResultSet;
 
 public class HighScoresPanel extends JPanel {
 
@@ -128,26 +128,16 @@ public class HighScoresPanel extends JPanel {
 
         model.setRowCount(0);
 
-        try {
+        int rank = 1;
 
-            ResultSet rs = DatabaseManager.getHighScores();
+        for (HighScoreEntry entry : DatabaseManager.getHighScores()) {
 
-            int rank = 1;
-
-            while (rs.next()) {
-
-                model.addRow(new Object[]{
-                        rank,
-                        rs.getString("username"),
-                        rs.getInt("bestScore"),
-                        rs.getInt("current_level")
-                });
-
-                rank++;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            model.addRow(new Object[]{
+                    rank++,
+                    entry.getUsername(),
+                    entry.getScore(),
+                    entry.getLevel()
+            });
         }
     }
 }
