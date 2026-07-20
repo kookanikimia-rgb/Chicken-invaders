@@ -74,7 +74,7 @@ public class Plane {
 
     public void takeDamage(){
         hp--;
-        if (hp < 0){
+        if (hp <= 0){
             hp = 0;
             dead = true;
         }

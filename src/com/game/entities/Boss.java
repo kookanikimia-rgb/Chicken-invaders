@@ -28,20 +28,20 @@ public class Boss {
     public Boss(int level) {
         this.level = level;
 
-        this.width = 120;
-        this.height = 120;
-        this.x = 300 - width / 2; // شروع از وسط صفحه
-        this.y = 50;
+        x = 300 - width / 2; // شروع از وسط صفحه
+        y = 50;
 
-        this.direction = 1;
-        this.lastAttackTime = 0;
-        this.angleY = 0;
+        direction = 1;
+        lastAttackTime = 0;
+        angleY = 0;
 
         if (level == 4) {
-            this.maxHp = 50;
-            this.hp = 50;
-            this.speedX = 1.5f;
-            this.pointValue = 500;
+            width = 170;
+            height = 140;
+            maxHp = 50;
+            hp = 50;
+            speedX = 1.5f;
+            pointValue = 500;
 
             try {
                 this.image = new ImageIcon(getClass().getResource("/Assets/images/chicken/boss1.png")).getImage();
@@ -50,10 +50,12 @@ public class Boss {
             }
 
         } else {
-            this.maxHp = 100;
-            this.hp = 100;
-            this.speedX = 2.0f;
-            this.pointValue = 1000;
+            width = 250;
+            height = 200;
+            maxHp = 100;
+            hp = 100;
+            speedX = 2.0f;
+            pointValue = 1000;
 
             try {
                 this.image = new ImageIcon(getClass().getResource("/Assets/images/chicken/boss2.png")).getImage();
