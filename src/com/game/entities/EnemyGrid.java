@@ -73,12 +73,11 @@ public class EnemyGrid {
         return false;
     }
 
-    public void spawnReplacementEnemy(int row, int col) {
+    public void spawnReplacementEnemy(int row, int col,int screenWidth) {
 
         if (hasReplacement(row, col))
             return;
 
-        // استفاده از متد قبلی برای ساخت مرغ مناسب سطح
         Enemy replacement = createEnemyForLevel(this.currentLevel, row, col);
 
         replacement.isReplacement = true; // علامت‌گذاری به عنوان جایگزین
@@ -91,7 +90,7 @@ public class EnemyGrid {
             replacement.x = 0;
             // گوشه چپ
         } else {
-            replacement.x = 580;
+            replacement.x = Math.max(0, screenWidth - replacement.width);
             // گوشه راست (عرض صفحه)
         }
         replacement.y = 0; // از بالای صفحه شروع می‌کند
@@ -151,15 +150,19 @@ public class EnemyGrid {
         return new NormalEnemy(normalHp,config.eggInterval);
     }
 
+
     public void update(int screenWidth){
 
         boolean hitEdge = false;
+        boolean foundNormalEnemy = false;
 
         // بررسی برخورد
         for(Enemy e : gridEnemies){
 
             if(e.isReplacement)
                 continue;
+
+            foundNormalEnemy = true;
 
             float nextX = e.x + direction * gridSpeed;
 
@@ -169,9 +172,22 @@ public class EnemyGrid {
             }
         }
 
+        // اگر هیچ مرغ اصلی باقی نمانده بود
+        if (!foundNormalEnemy) {
+
+            for (Enemy e : gridEnemies) {
+
+                float nextX = e.targetX + direction * gridSpeed;
+
+                if (nextX < 0 || nextX + e.width > screenWidth) {
+                    hitEdge = true;
+                    break;
+                }
+            }
+        }
+
         // برخورد
         if(hitEdge){
-
             direction *= -1;
             gridY += dropStep;
             for(Enemy e : gridEnemies){
@@ -187,8 +203,14 @@ public class EnemyGrid {
 
             if (e.isReplacement) {
 
-                // مقصد مرغ جایگزین همیشه جای سلول باشد
-                e.targetX = gridX + e.col * 40;
+                // فقط وقتی مرغ اصلی وجود ندارد،
+                // مقصد افقی هم همراه شبکه حرکت کند
+                if (!foundNormalEnemy) {
+                    e.targetX += direction * gridSpeed;
+                } else {
+                    e.targetX = gridX + e.col * 40;
+                }
+
                 e.targetY = gridY + e.row * 40;
 
                 e.update(direction, gridSpeed);
@@ -200,7 +222,11 @@ public class EnemyGrid {
 
             }
         }
-        gridX+=direction*gridSpeed;
+
+        // تا وقتی مرغ اصلی هست شبکه حرکت کند
+        if (foundNormalEnemy) {
+            gridX += direction * gridSpeed;
+        }
     }
 
     public boolean canDropEgg(Enemy candidate) {

@@ -63,12 +63,12 @@ public abstract class Enemy {
             y -= speed;
         }
         if(isReplacement){
-             if (x <= 0)
-                 x = 0;
+            if (x <= 0)
+                x = 0;
 
-             if (x + width >= 580)
-                 x = 580 - width;
-         }
+            if (x + width >= 580)
+                x = 580 - width;
+        }
 
         if (Math.abs(x - targetX) < 0.1f &&
                 Math.abs(y - targetY) < 0.1f) {

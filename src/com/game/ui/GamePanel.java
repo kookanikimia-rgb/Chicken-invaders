@@ -300,7 +300,7 @@ public class GamePanel extends JPanel implements KeyListener {
             enemyGrid.cellHits[enemy.row][enemy.col]--;
 
             if (enemyGrid.cellHits[enemy.row][enemy.col] > 0) {
-                enemyGrid.spawnReplacementEnemy(enemy.row, enemy.col);
+                enemyGrid.spawnReplacementEnemy(enemy.row, enemy.col,getWidth());
             }
         }
     }
@@ -796,7 +796,7 @@ public class GamePanel extends JPanel implements KeyListener {
         int boxY = (getHeight() - boxHeight) / 2 - 30;
 
         // پس‌زمینه تیره کل صفحه
-        g2d.setColor(new Color(0, 0, 0, 150));
+        g2d.setColor(new Color(0, 0, 0, 170));
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
         // باکس
