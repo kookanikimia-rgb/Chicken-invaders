@@ -234,20 +234,8 @@ public class GamePanel extends JPanel implements KeyListener {
         if (enemyGrid != null) {
             for (Enemy e : enemyGrid.gridEnemies)
                 if (player.getBounds().intersects(e.getBounds())) {
-                    if (gameTime() > shieldEndTime && playerDeathTime == 0)
-                        player.takeDamage();
+                    damagePlayer();
                     e.hp = 0;
-                    if (player.hp <= 0 && playerDeathTime == 0) {
-
-                        playerDeathTime = gameTime();
-
-                        SoundManager.playExplosion();
-
-                        int centerX = player.x + player.width / 2;
-                        int centerY = player.y + player.height / 2;
-
-                        explosions.add(new Explosion(centerX, centerY, 80, gameTime(),Explosion.PLAYER));
-                    }
                 }
 
         for (int i = 0; i < enemyGrid.gridEnemies.size(); i++) {
@@ -310,7 +298,7 @@ public class GamePanel extends JPanel implements KeyListener {
             }
 
             for (Enemy e : enemyGrid.gridEnemies) {
-                if (e.row == 4) {
+                if (enemyGrid.canDropEgg(e)) {
                     Egg newEgg = e.dropEgg(gameTime());
                     if (newEgg != null) {
                         eggs.add(newEgg);
@@ -371,163 +359,152 @@ public class GamePanel extends JPanel implements KeyListener {
             }
         }
 
-
         // آپدیت حرکت تخم‌ها و برخورد با پلیر
-        for (int i = 0; i < eggs.size(); i++) {
-            Egg egg = eggs.get(i);
-            if (gameTime() > freezeEndTime)
-                egg.move();
-
-            if (egg.y > getHeight()) {
-                eggs.remove(i--);
-                continue;
-            }
-
-            if (egg.getBounds().intersects(player.getBounds())) {
-
-                if (gameTime() > shieldEndTime && playerDeathTime == 0)
-                    player.takeDamage();
-
-                eggs.remove(i--);
-                if (player.hp <= 0 && playerDeathTime == 0) {
-
-                    playerDeathTime = gameTime();
-
-                    SoundManager.playExplosion();
-
-                    int centerX = player.x + player.width / 2;
-                    int centerY = player.y + player.height / 2;
-
-                    explosions.add(new Explosion(centerX, centerY, 80, gameTime(),Explosion.PLAYER));
-                }
-            }
-        }
-
-        for (int i = 0; i < enemyBullets.size(); i++) {
-
-            EnemyBullet b = enemyBullets.get(i);
-
-            if (gameTime() > freezeEndTime)
-                b.move();
-
-            if (b.getBounds().intersects(player.getBounds())) {
-
-                if (gameTime() > shieldEndTime && playerDeathTime == 0)
-                    player.takeDamage();
-
-                enemyBullets.remove(i--);
-
-                if (player.hp <= 0) {
-                    gameOver();
-                    return;
-                }
-                continue;
-            }
-
-            if (b.x < 0 || b.x > getWidth())
-                enemyBullets.remove(i--);
-        }
+        updateEggs();
+        //آپدیت حرکت تیر های دشمن و برخورد با پلیر
+        updateEnemyBullets();
 
         if (enemyGrid != null && enemyGrid.gridEnemies.isEmpty()) {
             if (currentLevel < 8) {
 
-                bullets.clear();
-                eggs.clear();
-                enemyBullets.clear();
-                explosions.clear();
-                powerUps.clear();
+                clearLevelObjects();
 
                 currentLevel++;
                 enemyGrid = new EnemyGrid(currentLevel);
                 addScore(200);
             }
         }
-        if (boss != null && boss.isDead()) {
-            if (bossDeathTime == 0) {
+        updateBossDeath();
 
-                bossDeathTime = gameTime();
-
-                SoundManager.playExplosion();
-
-                // افکت
-                int centerX = (int) (boss.x + boss.width / 2);
-                int centerY = (int) (boss.y + boss.height / 2);
-
-                explosions.add(new Explosion(centerX, centerY, 100, gameTime(),Explosion.ENEMY));
-
-                return;
-            }
-
-            if (gameTime() - bossDeathTime < 800)
-                return;
-
-            addScore(currentLevel == 4 ? 500 : 1000);
-
-            if (currentLevel == 8) {
-
-                isWin = true;
-
-                SoundManager.playWin();
-
-                DatabaseManager.saveGame(
-                        UserSession.getUserName(),
-                        score,
-                        currentLevel,
-                        DatabaseManager.getSoundSetting(UserSession.getUserName(), "bg_music"),
-                        DatabaseManager.getSoundSetting(UserSession.getUserName(), "shot_sound"),
-                        DatabaseManager.getSoundSetting(UserSession.getUserName(), "crash_sound"),
-                        DatabaseManager.getSoundSetting(UserSession.getUserName(), "game_over_sound")
-                );
-
-                DatabaseManager.updateUserStats(
-                        UserSession.getUserName(),
-                        score,
-                        currentLevel
-                );
-
-                bullets.clear();
-                eggs.clear();
-                enemyBullets.clear();
-                explosions.clear();
-                powerUps.clear();
-                gameTimer.stop();
-
-            }else {
-                currentLevel++;
-
-                bullets.clear();
-                eggs.clear();
-                enemyBullets.clear();
-                explosions.clear();
-                powerUps.clear();
-
-                boss = null;
-                bossDeathTime = 0;
-
-                enemyGrid = new EnemyGrid(currentLevel);
-            }
-
-            if (bossDeathTime != 0 && gameTime() - bossDeathTime > 500) {
-                currentLevel++;
-
-                bullets.clear();
-                eggs.clear();
-                enemyBullets.clear();
-                explosions.clear();
-                powerUps.clear();
-
-                boss = null;
-                bossDeathTime = 0;
-                enemyGrid = new EnemyGrid(currentLevel);
-            }
-        }
-        if (playerDeathTime != 0 &&
-                gameTime() - playerDeathTime > 600) {
-
+        if (playerDeathTime != 0 && gameTime() - playerDeathTime > 600) {
             playerDeathTime = 0;
             gameOver();
         }
     }
+
+    private void updateEggs() {
+        for (int i = 0; i < eggs.size(); i++) {
+            Egg egg = eggs.get(i);
+            if (gameTime() > freezeEndTime) {
+                egg.move();
+            }
+            if (isOutsideScreen(egg)) {
+                eggs.remove(i--);
+                continue;
+            }
+            if (egg.getBounds().intersects(player.getBounds())) {
+                damagePlayer();
+                eggs.remove(i--);
+            }
+        }
+    }
+    private void updateEnemyBullets() {
+
+        for (int i = 0; i < enemyBullets.size(); i++) {
+
+            EnemyBullet bullet = enemyBullets.get(i);
+
+            if (gameTime() > freezeEndTime) {
+                bullet.move();
+            }
+
+            if (bullet.getBounds().intersects(player.getBounds())) {
+
+                damagePlayer();
+
+                enemyBullets.remove(i--);
+                continue;
+            }
+
+            if (bullet.x < 0 || bullet.x > getWidth())
+                enemyBullets.remove(i--);
+        }
+    }
+    private void damagePlayer() {
+
+        if (gameTime() <= shieldEndTime || playerDeathTime != 0)
+            return;
+
+        player.takeDamage();
+
+            SoundManager.playExplosion();
+
+            int centerX = player.x + player.width / 2;
+            int centerY = player.y + player.height / 2;
+
+            explosions.add(new Explosion(
+                    centerX,
+                    centerY,
+                    80,
+                    gameTime(),
+                    Explosion.PLAYER));
+        if (player.isDead()) {
+            playerDeathTime = gameTime();
+        }
+    }
+
+    private boolean isOutsideScreen(Egg egg) {
+
+        return egg.x + egg.width < 0
+                || egg.x > getWidth()
+                || egg.y + egg.height < 0
+                || egg.y > getHeight();
+    }
+
+    private void updateBossDeath() {
+        if (boss == null || !boss.isDead()) {
+            return;
+        }
+        if (bossDeathTime == 0) {
+            bossDeathTime = gameTime();
+            SoundManager.playExplosion();
+            int centerX = (int) (boss.x + boss.width / 2f);
+            int centerY = (int) (boss.y + boss.height / 2f);
+            explosions.add(new Explosion(
+                    centerX, centerY, 100, gameTime(), Explosion.ENEMY));
+            return;
+        }
+        if (gameTime() - bossDeathTime < 800) {
+            return;
+        }
+        addScore(currentLevel == 4 ? 500 : 1000);
+        if (currentLevel == 8) {
+            finishWin();
+            return;
+        }
+        currentLevel++;
+        clearLevelObjects();
+        boss = null;
+        bossDeathTime = 0;
+        enemyGrid = new EnemyGrid(currentLevel);
+    }
+    private void finishWin() {
+
+        isWin = true;
+
+        SoundManager.playWin();
+
+        DatabaseManager.saveGame(
+                UserSession.getUserName(),
+                score,
+                currentLevel,
+                DatabaseManager.getSoundSetting(UserSession.getUserName(), "bg_music"),
+                DatabaseManager.getSoundSetting(UserSession.getUserName(), "shot_sound"),
+                DatabaseManager.getSoundSetting(UserSession.getUserName(), "crash_sound"),
+                DatabaseManager.getSoundSetting(UserSession.getUserName(), "game_over_sound")
+        );
+
+        DatabaseManager.updateUserStats(
+                UserSession.getUserName(),
+                score,
+                currentLevel
+        );
+
+        clearLevelObjects();
+
+        gameTimer.stop();
+    }
+
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -766,16 +743,16 @@ public class GamePanel extends JPanel implements KeyListener {
             return;
         }
 
-        if(key==KeyEvent.VK_LEFT)
+        if(key==KeyEvent.VK_LEFT || key == KeyEvent.VK_A)
             leftPressed = true;
 
-        if(key==KeyEvent.VK_RIGHT)
+        if(key==KeyEvent.VK_RIGHT || key == KeyEvent.VK_D)
             rightPressed = true;
 
-        if (key==KeyEvent.VK_UP)
+        if (key==KeyEvent.VK_UP || key == KeyEvent.VK_W)
             upPressed = true;
 
-        if (key==KeyEvent.VK_DOWN)
+        if (key==KeyEvent.VK_DOWN || key == KeyEvent.VK_S)
             downPressed = true;
 
         if (key==KeyEvent.VK_SPACE)
@@ -801,16 +778,16 @@ public class GamePanel extends JPanel implements KeyListener {
     public void keyReleased(KeyEvent e){
         int key = e.getKeyCode();
 
-        if(key==KeyEvent.VK_LEFT)
+        if(key==KeyEvent.VK_LEFT || key == KeyEvent.VK_A)
             leftPressed = false;
 
-        if(key==KeyEvent.VK_RIGHT)
+        if(key==KeyEvent.VK_RIGHT || key == KeyEvent.VK_D)
             rightPressed = false;
 
-        if (key==KeyEvent.VK_UP)
+        if (key==KeyEvent.VK_UP || key == KeyEvent.VK_W)
             upPressed = false;
 
-        if (key==KeyEvent.VK_DOWN)
+        if (key==KeyEvent.VK_DOWN || key == KeyEvent.VK_S)
             downPressed = false;
 
         if (key==KeyEvent.VK_SPACE)
@@ -850,10 +827,7 @@ public class GamePanel extends JPanel implements KeyListener {
         enemyGrid = new EnemyGrid(currentLevel);
         boss = null;
         bulletCount = 1;
-        bullets.clear();
-        enemyBullets.clear();
-        powerUps.clear();
-        eggs.clear();
+        clearLevelObjects();
         rapidFireEndTime = 0;
         shieldEndTime = 0;
         freezeEndTime = 0;
@@ -864,6 +838,13 @@ public class GamePanel extends JPanel implements KeyListener {
         pauseStartTime = 0;
         playerDeathTime = 0;
         playerExplosionPlayed = false;
+    }
+    private void clearLevelObjects() {
+        bullets.clear();
+        eggs.clear();
+        enemyBullets.clear();
+        explosions.clear();
+        powerUps.clear();
     }
 
     private void gameOver() {
@@ -923,4 +904,5 @@ public class GamePanel extends JPanel implements KeyListener {
         long now = isPaused ? pauseStartTime : System.currentTimeMillis();
         return now - pausedDuration;
     }
+
 }

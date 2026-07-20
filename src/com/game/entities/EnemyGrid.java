@@ -203,6 +203,20 @@ public class EnemyGrid {
         gridX+=direction*gridSpeed;
     }
 
+    public boolean canDropEgg(Enemy candidate) {
+        if (candidate.isReplacement || candidate.isDead()) {
+            return false;
+        }
+        for (Enemy other : gridEnemies) {
+            if (other == candidate || other.isReplacement || other.isDead()) {
+                continue;
+            }
+            if (other.col == candidate.col && other.row > candidate.row) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     public void draw(Graphics g) {
         for (Enemy e : gridEnemies) {

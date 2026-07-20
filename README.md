@@ -51,7 +51,7 @@ Run `Main.java` from IntelliJ IDEA.
 
 | Key | Action |
 |------|--------|
-| ← → ↑ ↓ | Move |
+|← → ↑ ↓ or W A S D | Move |
 | SPACE | Shoot |
 | P | Pause |
 | ESC | Return to Menu |

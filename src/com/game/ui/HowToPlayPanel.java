@@ -29,10 +29,10 @@ public class HowToPlayPanel extends JPanel {
                Destroy all enemy chickens and survive all 8 levels.
 
                CONTROLS
-               ← → ↑ ↓   Move spaceship
-               SPACE     Shoot
-               P         Pause game
-               ESC       Return to menu
+               ← → ↑ ↓ / W A S D   Move spaceship
+               SPACE               Shoot
+               P                   Pause game
+               ESC                 Return to menu
 
                POWER UPS
 
