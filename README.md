@@ -37,20 +37,44 @@ Features:
 - Java JDK 17+
 - IntelliJ IDEA
 
-SQLite database (`game.db`) is created automatically.
+The project includes the SQLite JDBC driver inside the `Libs` folder.
+
+The SQLite database (`game.db`) is created automatically on first run.
+
+---
+## Project Structure
+
+```
+Chicken-invaders/
+│
+├── src/
+├── Assets/
+├── Libs/
+│   └── sqlite-jdbc-3.53.2.0.jar
+├── game.db
+├── README.md
+└── .gitignore
+```
+
+The SQLite JDBC driver is included in the `Libs` folder.
+
+If IntelliJ does not add it automatically, add:
+
+**File → Project Structure → Modules → Dependencies → + → JARs or Directories**
+
+and select:
+
+`Libs/sqlite-jdbc-3.53.2.0.jar`
 
 ---
 
 ## How to Run
 
-Run `Main.java` from IntelliJ IDEA.
+1. Open the project in IntelliJ IDEA.
+2. Make sure the SQLite JDBC library (`Libs/sqlite-jdbc-3.53.2.0.jar`) is added as a dependency.
+3. Run `Main.java`.
+4. The database (`game.db`) will be created automatically if it does not already exist.
 
-Dependencies:
-- SQLite JDBC Driver: Libs/sqlite-jdbc-3.53.2.0.jar
-
-If IntelliJ does not detect the library automatically:
-File → Project Structure → Modules → Dependencies → + → JARs or Directories
-Select: Libs/sqlite-jdbc-3.53.2.0.jar
 ---
 
 ## Game Controls
@@ -84,6 +108,7 @@ Tables:
 - shot_sound
 - crash_sound
 - game_over_sound
+- selected_plane
 
 ### game_history
 
