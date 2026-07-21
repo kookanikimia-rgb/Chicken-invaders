@@ -61,6 +61,7 @@ public class GamePanel extends JPanel implements KeyListener {
     private Image freezeIcon;
     private Image rapidFireIcon;
 
+    private boolean gameResultSaved;
 
     public GamePanel(MainFrame frame){
 
@@ -322,7 +323,14 @@ public class GamePanel extends JPanel implements KeyListener {
         if (boss == null) {
 
             enemyGrid = null;
-            boss = new Boss(currentLevel);
+
+            if(currentLevel == 4){
+                boss = new BossLevel4();
+            }
+
+            if(currentLevel == 8){
+                boss = new BossLevel8();
+            }
         }
 
         if (gameTime() <= freezeEndTime || boss.isDead())
@@ -595,6 +603,10 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private void savePlayerProgress() {
 
+        if (gameResultSaved || UserSession.getUserName() == null) {
+            return;
+        }
+
         DatabaseManager.saveGame(
                 UserSession.getUserName(),
                 score,
@@ -610,6 +622,8 @@ public class GamePanel extends JPanel implements KeyListener {
                 score,
                 currentLevel
         );
+
+        gameResultSaved = true;
     }
 
 
@@ -871,15 +885,12 @@ public class GamePanel extends JPanel implements KeyListener {
     public void keyPressed(KeyEvent e){
         int key = e.getKeyCode();
 
-        if (isGameOver || isWin) {
-            if (key == KeyEvent.VK_ESCAPE) {
+        if (key == KeyEvent.VK_ESCAPE) {
+            savePlayerProgress();
+            gameTimer.stop();
+            resetGame();
+            frame.showPage("MENU");
 
-                    gameTimer.stop();
-                    resetGame();
-                    frame.showPage("MENU");
-
-                return;
-            }
             return;
         }
 
@@ -976,7 +987,7 @@ public class GamePanel extends JPanel implements KeyListener {
         isWin = false;
         isPaused = false;
 
-        // ریست تایمر Pause
+        // ریست تایمر پاز
         pausedDuration = 0;
         pauseStartTime = 0;
 
@@ -987,6 +998,7 @@ public class GamePanel extends JPanel implements KeyListener {
         boss = null;
         enemyGrid = new EnemyGrid(currentLevel);
 
+        gameResultSaved = false;
     }
 
     private void clearLevelObjects() {

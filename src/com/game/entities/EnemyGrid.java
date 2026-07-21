@@ -91,7 +91,7 @@ public class EnemyGrid {
             // گوشه چپ
         } else {
             replacement.x = Math.max(0, screenWidth - replacement.width);
-            // گوشه راست (عرض صفحه)
+            // گوشه راست
         }
         replacement.y = 0; // از بالای صفحه شروع می‌کند
 

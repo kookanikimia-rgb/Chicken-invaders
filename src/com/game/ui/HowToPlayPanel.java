@@ -69,7 +69,6 @@ public class HowToPlayPanel extends JPanel {
         scrollPane.setBorder(null);
         add(scrollPane, BorderLayout.CENTER);
 
-        // دکمه برگشت
         JButton backBtn = new JButton("Back To Menu");
         backBtn.setPreferredSize(new Dimension(200,40));
         backBtn.setFont(new Font("Monospaced", Font.BOLD, 20));

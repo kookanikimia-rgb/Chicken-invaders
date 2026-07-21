@@ -6,26 +6,37 @@ import com.game.entities.UserSession;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineEvent;
 import java.net.URL;
 
 public class SoundManager {
 
     private static Clip backgroundClip;
-    private static Clip effectClip;
 
-    private static boolean isEnabled(String key) {
+    private static boolean backgroundMusicEnabled = true;
+    private static boolean shotSoundEnabled = true;
+    private static boolean crashSoundEnabled = true;
+    private static boolean gameOverSoundEnabled = true;
 
-        String username = UserSession.getUserName();
+    public static void loadSettings(String username) {
 
         if (username == null)
-            return true;
+            return;
 
-        return DatabaseManager.getSoundSetting(username, key);
+        backgroundMusicEnabled =
+                DatabaseManager.getSoundSetting(username, "bg_music");
+
+        shotSoundEnabled =
+                DatabaseManager.getSoundSetting(username, "shot_sound");
+
+        crashSoundEnabled =
+                DatabaseManager.getSoundSetting(username, "crash_sound");
+
+        gameOverSoundEnabled =
+                DatabaseManager.getSoundSetting(username, "game_over_sound");
     }
 
     private static void play(String path) {
-
-        try {
 
             URL url = SoundManager.class.getResource(path);
 
@@ -34,12 +45,18 @@ public class SoundManager {
                 return;
             }
 
-            AudioInputStream audio =
-                    AudioSystem.getAudioInputStream(url);
+            try (AudioInputStream audio = AudioSystem.getAudioInputStream(url)){
 
-            effectClip = AudioSystem.getClip();
-            effectClip.open(audio);
-            effectClip.start();
+                Clip clip = AudioSystem.getClip();
+
+                clip.addLineListener(event -> {
+                    if (event.getType() == LineEvent.Type.STOP) {
+                        clip.close();
+                    }
+                });
+
+                clip.open(audio);
+                clip.start();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,7 +66,7 @@ public class SoundManager {
 
     public static void startBackgroundMusic() {
 
-        if (!isEnabled("bg_music"))
+        if (!backgroundMusicEnabled)
             return;
 
         if (backgroundClip != null) {
@@ -93,14 +110,14 @@ public class SoundManager {
 
     public static void playShot() {
 
-        if (isEnabled("shot_sound"))
+        if (shotSoundEnabled)
             play("/Assets/sounds/sound-effects/gun-shot.wav");
 
     }
 
     public static void playExplosion() {
 
-        if (isEnabled("crash_sound"))
+        if (crashSoundEnabled)
             play("/Assets/sounds/sound-effects/afar-explosion.wav");
 
     }
@@ -108,7 +125,7 @@ public class SoundManager {
     public static void playGameOver() {
         stopBackgroundMusic();
 
-        if (isEnabled("game_over_sound"))
+        if (gameOverSoundEnabled)
             play("/Assets/sounds/sound-effects/game-over.wav");
 
     }
@@ -116,17 +133,9 @@ public class SoundManager {
     public static void playWin() {
         stopBackgroundMusic();
 
-        if (isEnabled("game_over_sound"))
+        if (gameOverSoundEnabled)
             play("/Assets/sounds/sound-effects/win.wav");
 
     }
-    public static void stopEffectSound() {
 
-        if (effectClip != null) {
-            effectClip.stop();
-            effectClip.close();
-            effectClip = null;
-        }
-
-    }
 }

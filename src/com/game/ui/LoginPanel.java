@@ -1,5 +1,6 @@
 package com.game.ui;
 
+import com.game.audio.SoundManager;
 import com.game.database.DatabaseManager;
 import com.game.entities.UserSession;
 
@@ -69,8 +70,13 @@ public class LoginPanel extends JPanel {
 
             if (!name.isEmpty() && !pass.isEmpty()){
                 if (DatabaseManager.login(name, pass)) {
+
                     UserSession.setUser(name);
+
+                    SoundManager.loadSettings(name);
+
                     frame.showPage("MENU");
+
                     JOptionPane.showMessageDialog(this, "Welcome," + name + "!");
                 } else {
 

@@ -53,7 +53,6 @@ public class MainFrame extends JFrame {
         switch (pageName) {
 
             case "MENU":
-                SoundManager.stopEffectSound();
                 SoundManager.startBackgroundMusic();
                 break;
 

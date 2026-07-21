@@ -42,7 +42,7 @@ public class Explosion {
         long passedTime = gameTime - startTime;
         double progress = passedTime / (double) duration;
 
-        // اندازه عکس از ۲۰ پیکسل شروع شده و تا maxSize بزرگ می‌شود
+        // اندازه عکس از ۲۰ پیکسل شروع شده و تا ماکسیمم بزرگ می‌شود
         int size = (int) (20 + (maxSize - 20) * progress);
 
         if (image != null) {

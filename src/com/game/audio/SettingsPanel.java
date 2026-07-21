@@ -77,10 +77,12 @@ public class SettingsPanel extends JPanel {
         saveBtn.addActionListener(e->{
             String currentUserName = UserSession.getUserName();
             if(currentUserName != null){
+
                 DatabaseManager.updateSoundSetting(currentUserName,"bg_music",bgMusic.isSelected());
                 DatabaseManager.updateSoundSetting(currentUserName,"shot_sound",shotSound.isSelected());
                 DatabaseManager.updateSoundSetting(currentUserName,"crash_sound",crashSound.isSelected());
                 DatabaseManager.updateSoundSetting(currentUserName,"game_over_sound",gameOverSound.isSelected());
+                SoundManager.loadSettings(currentUserName);
 
                 if (bgMusic.isSelected()) {
                     SoundManager.startBackgroundMusic();

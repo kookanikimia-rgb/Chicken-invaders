@@ -5,7 +5,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Boss {
+public abstract class Boss {
     public float x, y;
     public int width;
     public int height;
@@ -13,20 +13,17 @@ public class Boss {
     public int hp;
     public int maxHp;
 
-    public int level;
     public int pointValue;
 
-    private float speedX;
-    private int direction;
-    private long lastAttackTime;
+    protected float speedX;
+    protected int direction;
+    protected long lastAttackTime;
 
     public Image image;
 
+    protected int angleY;
 
-    private float angleY;
-
-    public Boss(int level) {
-        this.level = level;
+    public Boss() {
 
         x = 300 - width / 2; // شروع از وسط صفحه
         y = 50;
@@ -35,81 +32,26 @@ public class Boss {
         lastAttackTime = 0;
         angleY = 0;
 
-        if (level == 4) {
-            width = 170;
-            height = 140;
-            maxHp = 50;
-            hp = 50;
-            speedX = 1.5f;
-            pointValue = 500;
-
-            try {
-                this.image = new ImageIcon(getClass().getResource("/Assets/images/chicken/boss1.png")).getImage();
-            } catch (Exception e) {
-                System.out.println("Boss1Enemy image not found!");
-            }
-
-        } else {
-            width = 250;
-            height = 200;
-            maxHp = 100;
-            hp = 100;
-            speedX = 2.0f;
-            pointValue = 1000;
-
-            try {
-                this.image = new ImageIcon(getClass().getResource("/Assets/images/chicken/boss2.png")).getImage();
-            } catch (Exception e) {
-                System.out.println("Boos2Enemy image not found!");
-            }
-
         }
 
-    }
+    protected void horizontalMove(int screenWidth){
 
-    public void update(int screenWidth){
-        x += speedX*direction;
-        if (x <= 0) {
+        x += speedX * direction;
+
+        if(x <= 0){
             x = 0;
             direction = 1;
         }
 
-        if (x + width >= screenWidth) {
+        if(x + width >= screenWidth){
             x = screenWidth - width;
             direction = -1;
         }
-        if(level == 8){
-            angleY += 0.05f;
-            y = 50 + (float) Math.sin(angleY) * 50;
-        }
     }
 
-    public List<Egg> attack(long gameTime){
-        List<Egg> newEggs = new ArrayList<>();
-        long currentTime = gameTime;
+    public abstract void update(int screenWidth);
 
-        int interval = (level == 4) ? 1500 : 1000;
-
-        if(gameTime-lastAttackTime >= interval) {
-            lastAttackTime = currentTime;
-            if (level == 4) {
-                // شلیک در ۴ جهت: بالا، پایین، چپ، راست
-                newEggs.add(new Egg(x + width / 2, y + height / 2, 0, -4)); // بالا
-                newEggs.add(new Egg(x + width / 2, y + height / 2, 0, 4));  // پایین
-                newEggs.add(new Egg(x + width / 2, y + height / 2, -4, 0)); // چپ
-                newEggs.add(new Egg(x + width / 2, y + height / 2, 4, 0));  // راست
-            } else {
-                // شلیک در ۸ جهت (زاویه ۴۵ درجه)
-                for (int i = 0; i < 360; i += 45) {
-                    double rad = Math.toRadians(i);
-                    float vx = (float) (Math.cos(rad) * 5);
-                    float vy = (float) (Math.sin(rad) * 5);
-                    newEggs.add(new Egg(x + width / 2, y + height / 2, vx, vy));
-                }
-            }
-        }
-        return newEggs;
-    }
+    public abstract List<Egg> attack(long gameTime);
 
     public void draw(Graphics g){
         // ۱. رسم عکس غول به جای مستطیل نارنجی
