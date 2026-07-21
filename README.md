@@ -45,6 +45,12 @@ SQLite database (`game.db`) is created automatically.
 
 Run `Main.java` from IntelliJ IDEA.
 
+Dependencies:
+- SQLite JDBC Driver: Libs/sqlite-jdbc-3.53.2.0.jar
+
+If IntelliJ does not detect the library automatically:
+File → Project Structure → Modules → Dependencies → + → JARs or Directories
+Select: Libs/sqlite-jdbc-3.53.2.0.jar
 ---
 
 ## Game Controls
